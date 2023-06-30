@@ -1,0 +1,17 @@
+joint_radius_override:
+  joint_1: 0.0503305
+  joint_2: 0.0630855
+  joint_3: 0.0463565
+  joint_4: 0.0634475
+  joint_5: 0.0352165
+  joint_6: 0.0542545
+  joint_7: 0.0364255
+  end_effector: 0.0394685
+constraint_links:
+  - shoulder_link
+  - half_arm_1_link
+  - half_arm_2_link
+  - forearm_link
+  - spherical_wrist_1_link
+  - spherical_wrist_2_link
+  - bracelet_link

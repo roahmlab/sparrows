@@ -1,0 +1,28 @@
+name: sparrows
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.10.14
+  - numpy
+  - conda-forge::cyipopt=1.4.1=py310h23d91ed_2
+  - conda-forge::python_abi=3.10
+  - pytorch::pytorch=2.2.0=py3.10_cpu_0
+  - pytorch::torchvision=0.17.0=py310_cpu
+  - pytorch::torchaudio=2.2.0=py310_cpu
+  - pytorch::torchtriton=2.2.0=py310
+  - pytorch::pytorch-mutex=1.0=cpu
+  - pyyaml
+  - main::pip
+  - pip:
+    - matplotlib
+    - scipy>=1.8.0
+    - urchin
+    - python-fcl
+    - pyrender
+    - gym
+    - moviepy
+    - tqdm
+    - open3d
+    - "git+https://github.com/roahmlab/zonopy-robots.git@2246788251304d780348e455348ed74c3fed269c#egg=zonopy-robots"
+    - "git+https://github.com/roahmlab/zonopy.git@d07e06e534e395ef9873076adc4b160ac89da5b1#egg=zonopy"
