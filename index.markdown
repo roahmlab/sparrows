@@ -1,10 +1,10 @@
 ---
 # Front matter. This is where you specify a lot of page variables.
 layout: default
-title:  "SPHARMOUR"
+title:  "SPARROWS"
 date:   2023-06-16 03:03:01 -0400
 description: >- # Supports markdown
-  Spheres Are All You Need: Safe Motion Planning with Differentiable Reachable Sets
+  Safe Planning for Articulated Robots Using Reachability-based Obstacle Avoidance With Spheres
 show-description: true
 
 # Add page-specifi mathjax functionality. Manage global setting in _config.yml
@@ -61,15 +61,48 @@ links:
 {% include sections/links %}
 
 TODO: SIMULATION VIDEO HERE
-# Introduction
-test
+# Abstract
+Generating safe motion plans in real-time is necessary for the wide-scale
+deployment of robots in unstructured and human-centric environments. These
+motion plans must be safe to ensure humans are not harmed and nearby objects are
+not damaged. However, they must also be generated in realtime to ensure the
+robot can quickly adapt to changes in the environment. Many trajectory
+optimization methods introduce heuristics that trade-off safety and real-time
+performance, which can lead to potentially unsafe plans. This paper addresses
+this challenge by proposing Safe Planning for Articulated Robots Using
+Reachability-based Obstacle Avoidance With Spheres (SPARROWS). SPARROWS is a
+receding-horizon trajectory planner that utilizes the combination of a novel
+reachable set representation and an exact signed distance function to generate
+provably-safe motion plans. At runtime, SPARROWS uses parameterized trajectories
+to compute reachable sets composed entirely of spheres that overapproximate the
+swept volume of the robot’s motion. SPARROWS then performs trajectory
+optimization to select a safe trajectory that is guaranteed to be
+collision-free. We demonstrate that SPARROWS’ novel reachable set is
+significantly less conservative than previous approaches.  We also demonstrate
+that SPARROWS outperforms a variety of state-of-the-art methods in solving
+challenging motion planning tasks in cluttered environments. Code will be
+released upon acceptance of this manuscript.
 
 # Method
+![link_construction](./assets/sfo_link_construction.png)
 
 There is quite a bit of flexibility to how you structure the text too.
 Here, I'm going to make a justified grey content block with the heading outside.
 
-# Results
+# Contributions
+To address the limitations of existing approaches, this paper proposes Safe
+Planning for Articulated Robots Using Reachability-based Obstacle Avoidance With
+Spheres (SPARROWS). The proposed method combines reachability analysis with
+sphere-based collision primitives and an exact signed distance function to
+enable real-time motion planning that is certifiably-safe, yet less conservative
+than previous methods. This paper’s contributions are three-fold:
+1. A novel reachable set representation composed of over- lapping spheres,
+   called the Spherical Forward Occupancy (SFO), that overapproximates the
+   robot’s reachable set and is differentiable;
+2. An algorithm that computes the exact signed distance between a point and a
+   three dimensional zonotope;
+3. A demonstration that SPARROWS outperforms similar state-of-the-art methods on
+   a set of challenging motion planning tasks
 
 # Citation
 
