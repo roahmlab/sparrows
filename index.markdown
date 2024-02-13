@@ -106,6 +106,25 @@ than previous methods. This paper’s contributions are three-fold:
 3. A demonstration that SPARROWS outperforms similar state-of-the-art methods on
    a set of challenging motion planning tasks
 
+# Random Obstacles Demo
+<div class="row" style="margin-left:auto; margin-right:auto; margin-top:auto; white-space:nowrap; width:100%; height:180px">
+    <div class="col" style="margin-left:auto; margin-right:auto; width: 33.3%; height: 100%;">
+        <video preload="auto" controls autoplay muted loop style="display: inline-block; width: 100%; height: 100%; margin-left:auto; margin-right:auto;">
+            <source src="assets/combined_10_obstacles.mp4" type="video/mp4">
+        </video>
+    </div>
+    <div class="col" style="margin-left:auto; margin-right:auto; width: 33.3%; height: 100%;">
+        <video preload="auto" controls autoplay muted loop style="display: inline-block; width: 100%; height: 100%; margin-left:auto; margin-right:auto;">
+            <source src="assets/combined_20_obstacles.mp4" type="video/mp4">
+        </video>
+    </div>
+    <div class="col" style="margin-left:auto; margin-right:auto; width: 33.4%; height: 100%;">
+        <video preload="auto" controls autoplay muted loop style="display: inline-block; width: 100%; height: 100%; margin-left:auto; margin-right:auto;">
+            <source src="assets/combined_40_obstacles.mp4" type="video/mp4">
+        </video>
+    </div>
+</div> 
+
 # Citation
 
 <!-- # [Content](#content) -->
