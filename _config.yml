@@ -14,8 +14,8 @@ remote_theme: BuildingAtom/project-pages@v1.2-theme
 # Metadata and SEO-helper stuff
 # This title here should correspond to your base site or as a shared title
 title: Project Pages Template
-baseurl: "/project-pages" # the subpath of your site, e.g. /blog
-url: "https://buildingatom.io" # the base hostname & protocol for your site, e.g. http://example.com
+baseurl: "/sparrows" # the subpath of your site, e.g. /blog
+url: "https://roahmlab.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 # This sets window title, not the title you read on the page
 title-format: page-site # options are page-site, page, site.
 lang: en
