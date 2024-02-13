@@ -81,9 +81,11 @@ links:
 {% include sections/authors %}
 {% include sections/links %}
 
-<video preload="auto" controls autoplay muted loop style="display: inline-block; width: 800px; height: 600px; margin-left:auto; margin-right:auto;">
-  <source src="assets/sparrows_two_arm_demo.mp4" type="video/mp4">
-</video>
+<div align="center">
+    <video preload="auto" controls autoplay muted loop style="display: inline-block; width: 800px; height: 600px; margin-left:auto; margin-right:auto;">
+    <source src="assets/sparrows_two_arm_demo.mp4" type="video/mp4">
+    </video>
+</div>
 # Abstract
 Generating safe motion plans in real-time is necessary for the wide-scale
 deployment of robots in unstructured and human-centric environments. These
