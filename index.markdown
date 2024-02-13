@@ -60,7 +60,9 @@ links:
 {% include sections/authors %}
 {% include sections/links %}
 
-TODO: SIMULATION VIDEO HERE
+<video preload="auto" controls autoplay muted loop style="display: inline-block; width: 100%; height: 100%;margin-left:auto; margin-right:auto;">
+  <source src="sparrows_two_arm_demo.mp4" type="video/mp4">
+</video>
 # Abstract
 Generating safe motion plans in real-time is necessary for the wide-scale
 deployment of robots in unstructured and human-centric environments. These
