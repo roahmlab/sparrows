@@ -81,7 +81,7 @@ links:
 {% include sections/authors %}
 {% include sections/links %}
 
-<video preload="auto" controls autoplay muted loop style="display: inline-block; width: 100%; height: 100%;margin-left:auto; margin-right:auto;">
+<video preload="auto" controls autoplay muted loop style="display: inline-block; width: 800px; height: 600px; margin-left:auto; margin-right:auto;">
   <source src="assets/sparrows_two_arm_demo.mp4" type="video/mp4">
 </video>
 # Abstract
@@ -108,9 +108,6 @@ released upon acceptance of this manuscript.
 
 # Method
 ![link_construction](./assets/sfo_link_construction.png)
-
-There is quite a bit of flexibility to how you structure the text too.
-Here, I'm going to make a justified grey content block with the heading outside.
 
 # Contributions
 To address the limitations of existing approaches, this paper proposes Safe
@@ -151,6 +148,40 @@ than previous methods. This paper’s contributions are three-fold:
         <p align="center"> 40 obstacles</p>
     </div>
     <!-- Repeat the above structure for more videos -->
+</div>
+
+# Hard Scenarios Demo
+<div class="video-container" style="display: flex; flex-wrap: wrap; justify-content: space-between; magin: 0 -10px;">
+    <div class="video-item">
+        <video controls>
+            <source src="assets/sparrows_hard_scenarios_2.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+    <div class="video-item">
+        <video controls>
+            <source src="assets/sparrows_hard_scenarios_3.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+    <div class="video-item">
+        <video controls>
+            <source src="assets/sparrows_hard_scenarios_4.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+    <div class="video-item">
+        <video controls>
+            <source src="assets/sparrows_hard_scenarios_8.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+    <div class="video-item">
+        <video controls>
+            <source src="assets/sparrows_hard_scenarios_11.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
 </div>
 
 # Citation
