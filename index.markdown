@@ -61,7 +61,7 @@ links:
 {% include sections/links %}
 
 <video preload="auto" controls autoplay muted loop style="display: inline-block; width: 100%; height: 100%;margin-left:auto; margin-right:auto;">
-  <source src="sparrows_two_arm_demo.mp4" type="video/mp4">
+  <source src="assets/sparrows_two_arm_demo.mp4" type="video/mp4">
 </video>
 # Abstract
 Generating safe motion plans in real-time is necessary for the wide-scale
