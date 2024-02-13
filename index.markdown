@@ -56,6 +56,27 @@ links:
 
 # End Front Matter
 ---
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Video Gallery</title>
+<style>
+    .video-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between; /* or space-around */
+        margin: 0 -10px; /* Adjust according to your needs */
+    }
+    .video-item {
+        width: calc(33.33% - 20px); /* Adjust the width according to your needs */
+        margin: 10px;
+    }
+    .video-item video {
+        width: 100%;
+        height: auto;
+    }
+</style>
+</head>
 
 {% include sections/authors %}
 {% include sections/links %}
@@ -107,23 +128,30 @@ than previous methods. This paper’s contributions are three-fold:
    a set of challenging motion planning tasks
 
 # Random Obstacles Demo
-<div class="row" style="margin-left:auto; margin-right:auto; margin-top:auto; white-space:nowrap; width:100%; height:180px">
-    <div class="col" style="margin-left:auto; margin-right:auto; width: 33.3%; height: 100%;">
-        <video preload="auto" controls autoplay muted loop style="display: inline-block; width: 100%; height: 100%; margin-left:auto; margin-right:auto;">
+<div class="video-container" style="display: flex; flex-wrap: wrap; justify-content: space-between; magin: 0 -10px;">
+    <div class="video-item">
+        <video controls>
             <source src="assets/combined_10_obstacles.mp4" type="video/mp4">
+            Your browser does not support the video tag.
         </video>
+        <p align="center"> 10 obstacles</p>
     </div>
-    <div class="col" style="margin-left:auto; margin-right:auto; width: 33.3%; height: 100%;">
-        <video preload="auto" controls autoplay muted loop style="display: inline-block; width: 100%; height: 100%; margin-left:auto; margin-right:auto;">
+    <div class="video-item">
+        <video controls>
             <source src="assets/combined_20_obstacles.mp4" type="video/mp4">
+            Your browser does not support the video tag.
         </video>
+        <p align="center"> 20 obstacles</p>
     </div>
-    <div class="col" style="margin-left:auto; margin-right:auto; width: 33.4%; height: 100%;">
-        <video preload="auto" controls autoplay muted loop style="display: inline-block; width: 100%; height: 100%; margin-left:auto; margin-right:auto;">
+    <div class="video-item">
+        <video controls>
             <source src="assets/combined_40_obstacles.mp4" type="video/mp4">
+            Your browser does not support the video tag.
         </video>
+        <p align="center"> 40 obstacles</p>
     </div>
-</div> 
+    <!-- Repeat the above structure for more videos -->
+</div>
 
 # Citation
 
