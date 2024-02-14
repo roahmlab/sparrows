@@ -48,7 +48,7 @@ links:
   - icon: github
     icon-library: simpleicons
     text: Code
-    url: https://github.com/roahmlab/spharmour
+    url: https://github.com/roahmlab/sparrows
 
 # End Front Matter
 ---
