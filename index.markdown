@@ -65,16 +65,34 @@ links:
 <!-- BEGIN OVERVIEW VIDEOS -->
 <div class="fullwidth video-container" style="flex-wrap:nowrap; padding: 0 0.2em">
   <div class="video-item" style="min-width:0;">
-    <video autoplay preload="auto" controls disablepictureinpicture playsinline muted loop style="display:block; width:100%; height:auto;">
+    <video
+      class="autoplay-on-load"
+      preload="none"
+      controls
+      disablepictureinpicture
+      playsinline
+      muted
+      loop
+      style="display:block; width:100%; height:auto;"
+      poster="assets/thumb/sparrows_single_arm_demo.jpg">
       <source src="assets/sparrows_single_arm_demo.mp4" type="video/mp4">
-      Your browser does not support the video tag.
+      Your browser does not support this video.
     </video>
     <p>SPARROWS performing single arm planning </p>
   </div>
   <div class="video-item" style="min-width:0;">
-    <video autoplay preload="auto" controls disablepictureinpicture playsinline muted loop style="display:block; width:100%; height:auto;">
+    <video
+      class="autoplay-on-load"
+      preload="none"
+      controls
+      disablepictureinpicture
+      playsinline
+      muted
+      loop
+      style="display:block; width:100%; height:auto;"
+      poster="assets/thumb/sparrows_two_arm_demo.jpg">
       <source src="assets/sparrows_two_arm_demo.mp4" type="video/mp4">
-      Your browser does not support the video tag.
+      Your browser does not support this video.
     </video>
     <p>SPARROWS performing two arm planning </p>
   </div>
@@ -145,23 +163,50 @@ On the other hand, MPOT and TRAJOPT both stop due to colliding with the environm
 <!-- START RANDOM VIDEOS -->
 <div class="video-container">
   <div class="video-item">
-    <video class="autoplay-in-frame" preload="none" disableremoteplayback disablepictureinpicture playsinline muted loop onclick="this.paused ? this.play() : this.pause();">
+    <video
+      class="autoplay-in-frame"
+      preload="none"
+      disableremoteplayback
+      disablepictureinpicture
+      playsinline
+      muted
+      loop
+      onclick="this.paused ? this.play() : this.pause();"
+      poster="assets/thumb/combined_10_obstacles.jpg">
       <source src="assets/combined_10_obstacles.mp4" type="video/mp4">
-      Your browser does not support the video tag.
+      Your browser does not support this video.
     </video>
     <p>10 obstacles</p>
   </div>
   <div class="video-item">
-    <video class="autoplay-in-frame" preload="none" disableremoteplayback disablepictureinpicture playsinline muted loop onclick="this.paused ? this.play() : this.pause();">
+    <video
+      class="autoplay-in-frame"
+      preload="none"
+      disableremoteplayback
+      disablepictureinpicture
+      playsinline
+      muted
+      loop
+      onclick="this.paused ? this.play() : this.pause();"
+      poster="assets/thumb/combined_20_obstacles.jpg">
       <source src="assets/combined_20_obstacles.mp4" type="video/mp4">
-      Your browser does not support the video tag.
+      Your browser does not support this video.
     </video>
     <p>20 obstacles</p>
   </div>
   <div class="video-item">
-    <video class="autoplay-in-frame" preload="none" disableremoteplayback disablepictureinpicture playsinline muted loop onclick="this.paused ? this.play() : this.pause();">
+    <video
+      class="autoplay-in-frame"
+      preload="none"
+      disableremoteplayback
+      disablepictureinpicture
+      playsinline
+      muted
+      loop
+      onclick="this.paused ? this.play() : this.pause();"
+      poster="assets/thumb/combined_40_obstacles.jpg">
       <source src="assets/combined_40_obstacles.mp4" type="video/mp4">
-      Your browser does not support the video tag.
+      Your browser does not support this video.
     </video>
     <p>40 obstacles</p>
   </div>
@@ -174,34 +219,79 @@ SPARROWS' performance on a handful of these scenarios is demonstrated below.
 
 <!-- START HARD VIDEOS -->
 <div class="video-container">
-  <div class="video-item tighter">
-    <video class="autoplay-in-frame" preload="none" disableremoteplayback disablepictureinpicture playsinline muted loop onclick="this.paused ? this.play() : this.pause();">
+  <div class="video-item">
+    <video
+      class="autoplay-in-frame"
+      preload="none"
+      disableremoteplayback
+      disablepictureinpicture
+      playsinline
+      muted
+      loop
+      onclick="this.paused ? this.play() : this.pause();"
+      poster="assets/thumb/sparrows_hard_scenarios_2.jpg">
       <source src="assets/sparrows_hard_scenarios_2.mp4" type="video/mp4">
-      Your browser does not support the video tag.
+      Your browser does not support this video.
     </video>
   </div>
   <div class="video-item tighter">
-    <video class="autoplay-in-frame" preload="none" disableremoteplayback disablepictureinpicture playsinline muted loop onclick="this.paused ? this.play() : this.pause();">
+    <video
+      class="autoplay-in-frame"
+      preload="none"
+      disableremoteplayback
+      disablepictureinpicture
+      playsinline
+      muted
+      loop
+      onclick="this.paused ? this.play() : this.pause();"
+      poster="assets/thumb/sparrows_hard_scenarios_3.jpg">
       <source src="assets/sparrows_hard_scenarios_3.mp4" type="video/mp4">
-      Your browser does not support the video tag.
+      Your browser does not support this video.
     </video>
   </div>
   <div class="video-item tighter">
-    <video class="autoplay-in-frame" preload="none" disableremoteplayback disablepictureinpicture playsinline muted loop onclick="this.paused ? this.play() : this.pause();">
+    <video
+      class="autoplay-in-frame"
+      preload="none"
+      disableremoteplayback
+      disablepictureinpicture
+      playsinline
+      muted
+      loop
+      onclick="this.paused ? this.play() : this.pause();"
+      poster="assets/thumb/sparrows_hard_scenarios_8.jpg">
       <source src="assets/sparrows_hard_scenarios_8.mp4" type="video/mp4">
-      Your browser does not support the video tag.
+      Your browser does not support this video.
     </video>
   </div>
   <div class="video-item tighter">
-    <video class="autoplay-in-frame" preload="none" disableremoteplayback disablepictureinpicture playsinline muted loop onclick="this.paused ? this.play() : this.pause();">
+    <video
+      class="autoplay-in-frame"
+      preload="none"
+      disableremoteplayback
+      disablepictureinpicture
+      playsinline
+      muted
+      loop
+      onclick="this.paused ? this.play() : this.pause();"
+      poster="assets/thumb/sparrows_hard_scenarios_4.jpg">
       <source src="assets/sparrows_hard_scenarios_4.mp4" type="video/mp4">
-      Your browser does not support the video tag.
+      Your browser does not support this video.
     </video>
   </div>
   <div class="video-item tighter">
-    <video class="autoplay-in-frame" preload="none" disableremoteplayback disablepictureinpicture playsinline muted loop onclick="this.paused ? this.play() : this.pause();">
+    <video
+      class="autoplay-in-frame"
+      preload="none"
+      disableremoteplayback
+      disablepictureinpicture
+      playsinline
+      muted
+      loop
+      onclick="this.paused ? this.play() : this.pause();"
+      poster="assets/thumb/sparrows_hard_scenarios_11.jpg">
       <source src="assets/sparrows_hard_scenarios_11.mp4" type="video/mp4">
-      Your browser does not support the video tag.
+      Your browser does not support this video.
     </video>
   </div>
 </div><!-- END HARD VIDEOS -->
@@ -226,8 +316,9 @@ SPARROWS' performance on a handful of these scenarios is demonstrated below.
 
 <!-- below are some special scripts -->
 <script>
+window.addEventListener("load", function() {
   // Get all video elements and auto pause/play them depending on how in frame or not they are
-  const videos = document.querySelectorAll('.autoplay-in-frame');
+  let videos = document.querySelectorAll('.autoplay-in-frame');
 
   // Create an IntersectionObserver instance for each video
   videos.forEach(video => {
@@ -242,5 +333,13 @@ SPARROWS' performance on a handful of these scenarios is demonstrated below.
 
     observer.observe(video);
   });
+
+  // document.addEventListener("DOMContentLoaded", function() {
+  videos = document.querySelectorAll('.autoplay-on-load');
+
+  videos.forEach(video => {
+    video.play();
+  });
+});
 </script>
 
