@@ -329,7 +329,7 @@ window.addEventListener("load", function() {
       } else if (!isVisible && !video.paused) {
         video.pause();
       }
-    }, { threshold: 0.7 });
+    }, { threshold: 0.25 });
 
     observer.observe(video);
   });
