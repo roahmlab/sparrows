@@ -24,18 +24,16 @@ image:
 authors:
   - name: Jonathan Michaux
     email: jmichaux@umich.edu
-    <!-- footnotes: 1 -->
   - name: Adam Li
     <!-- url: https://buildingatom.io -->
     email: adamli@umich.edu
     <!-- mailto: adamli@umich.edu -->
-    <!-- footnotes: 2 -->
   - name: Qingyi Chen
     email: chenqy@umich.edu
-    <!-- footnotes: 3 -->
   - name: Che Chen
     email: cctom@umich.edu
-    <!-- footnotes: 3 -->
+  - name: Bohao
+    email: jimzhang@umich.edu
   - name: Ram Vasudevan
     email: ramv@umich.edu
 
