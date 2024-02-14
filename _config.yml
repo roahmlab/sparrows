@@ -13,7 +13,7 @@ remote_theme: BuildingAtom/project-pages@v1.2-theme
 
 # Metadata and SEO-helper stuff
 # This title here should correspond to your base site or as a shared title
-title: Project Pages Template
+title: Safe Planning for Articulated Robots Using Reachability-based Obstacle Avoidance With Spheres
 baseurl: "/sparrows" # the subpath of your site, e.g. /blog
 url: "https://roahmlab.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 # This sets window title, not the title you read on the page
@@ -28,29 +28,21 @@ credit:
     built by Adam Li / [@BuildingAtom](https://www.github.com/BuildingAtom)
 
 # Hide the credits in the footer by setting this false.
-show-credit: true
+show-credit: false
 
 # Disable the footer by just setting the above false AND making the below blank
 footer:
-  connections-pre: # This prefixes the connections section at the botom.
-  connections-post: Socials
+  # connections-pre: # This prefixes the connections section at the botom.
+  # connections-post: Socials
   connections:
-    twitter: https://www.twitter.com/BuildingAtom
-    github:  https://github.com/BuildingAtom
-  related-sites:
-    sites:
-      - text: Base Example
-        href: /project-pages/
-        icon: bi-box-arrow-left
-        icon-library: bootstrap-icons
-      - text: SEL Map Example
-        href: /project-pages/sel_map
-        icon: bi-map
-        icon-library: bootstrap-icons
-      - text: ARMOUR Example
-        href: /project-pages/armour-dev
-        icon: bi-bezier2
-        icon-library: bootstrap-icons
+    github: https://github.com/roahmlab/sparrows
+    arxiv: https://arxiv.org/
+  # related-sites:
+  #   sites:
+  #     - text: Code
+  #       href: https://github.com/roahmlab/sparrows
+  #       icon: bi-github
+  #       icon-library: bootstrap-icons
 
 
 # Only leave the icon libraries you want to use enabled.

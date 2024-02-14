@@ -49,3 +49,38 @@ $data-fonts: ({%- for font in site.data.fonts.fonts -%}{{ font.class }}: {{- fon
 // $table-text-align:  left;
 
 @import "{{ site.theme }}";
+
+// Add some video flex styling
+.video-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    column-gap: 0.1rem;
+    row-gap: 0.2rem;
+    padding: 0;
+    margin: 0;
+    .video-item {
+        min-width: 200px;
+        max-width: 100%;
+        flex-shrink: 2;
+        flex-basis: 30%;
+        flex-grow: 1;
+        video {
+            width: 100%;
+            height: auto;
+        }
+        &.tighter {
+            min-width: 120px;
+            flex-basis: 20%;
+        }
+        p {
+            text-align: center;
+            font-weight: bold;
+        }
+    }
+}
+
+// Force a smaller margin on h2
+h2 {
+    margin-top: 0.4em !important;
+}

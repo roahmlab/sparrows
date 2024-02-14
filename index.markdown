@@ -2,23 +2,23 @@
 # Front matter. This is where you specify a lot of page variables.
 layout: default
 title:  "SPARROWS"
-date:   2023-06-16 03:03:01 -0400
+date:   2024-02-13 10:00:00 -0500
 description: >- # Supports markdown
   Safe Planning for Articulated Robots Using Reachability-based Obstacle Avoidance With Spheres
 show-description: true
 
 # Add page-specifi mathjax functionality. Manage global setting in _config.yml
-mathjax: true
+mathjax: false
 # Automatically add permalinks to all headings
 # https://github.com/allejo/jekyll-anchor-headings
-autoanchor: true
+autoanchor: false
 
 # Preview image for social media cards
 image:
-  path: https://cdn.pixabay.com/photo/2019/09/05/01/11/mountainous-landscape-4452844_1280.jpg
-  height: 100
-  width: 256
-  alt: Random Landscape
+  path: /assets/main_fig_compressed.jpg
+  height: 600
+  width: 800
+  alt: SPARROWS Main Figure - 2-arm Planning
 
 # Only the first author is supported by twitter metadata
 authors:
@@ -32,7 +32,7 @@ authors:
     email: chenqy@umich.edu
   - name: Che Chen
     email: cctom@umich.edu
-  - name: Bohao
+  - name: Bohao Zhang
     email: jimzhang@umich.edu
   - name: Ram Vasudevan
     email: ramv@umich.edu
@@ -45,7 +45,7 @@ author-footnotes:
 links:
   - icon: arxiv
     icon-library: simpleicons
-    text: Arxiv HP
+    text: ArXiv
     url: https://arxiv.org/
   - icon: github
     icon-library: simpleicons
@@ -54,7 +54,7 @@ links:
 
 # End Front Matter
 ---
-<head>
+<!-- <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Video Gallery</title>
@@ -74,17 +74,34 @@ links:
         height: auto;
     }
 </style>
-</head>
+</head> -->
 
 {% include sections/authors %}
 {% include sections/links %}
 
-<div align="center">
-    <video preload="auto" controls autoplay muted loop style="display: inline-block; width: 800px; height: 600px; margin-left:auto; margin-right:auto;">
-    <source src="assets/sparrows_two_arm_demo.mp4" type="video/mp4">
-    </video>
+---
+
+# [Overview Videos](#overview-videos)
+<div class="fullwidth video-container" style="display:flex;flex-wrap:nowrap;">
+<div class="video-item">
+<video preload="auto" disablepictureinpicture controls playsinline class="autoplay-in-frame" muted loop style="display: block; width:100%; height: auto;">
+    <source src="assets/sparrows_single_arm_demo.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+</video>
+<p> SPARROWS performing single arm planning </p>
 </div>
-# Abstract
+<div class="video-item">
+<video preload="auto" disablepictureinpicture controls playsinline class="autoplay-in-frame" muted loop style="display: block; width:100%; height: auto;">
+    <source src="assets/sparrows_two_arm_demo.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+</video>
+<p> SPARROWS performing two arm planning </p>
+</div>
+</div>
+
+<div markdown="1" class="content-block justify grey">
+
+# [Abstract](#abstract)
 Generating safe motion plans in real-time is necessary for the wide-scale
 deployment of robots in unstructured and human-centric environments. These
 motion plans must be safe to ensure humans are not harmed and nearby objects are
@@ -106,10 +123,15 @@ that SPARROWS outperforms a variety of state-of-the-art methods in solving
 challenging motion planning tasks in cluttered environments. Code will be
 released upon acceptance of this manuscript.
 
-# Method
+</div>
+
+<div markdown="1" class="justify">
+
+# [Method](#method)
+
 ![link_construction](./assets/sfo_link_construction.png)
 
-# Contributions
+<!-- # Contributions -->
 To address the limitations of existing approaches, this paper proposes Safe
 Planning for Articulated Robots Using Reachability-based Obstacle Avoidance With
 Spheres (SPARROWS). The proposed method combines reachability analysis with
@@ -124,67 +146,119 @@ than previous methods. This paper’s contributions are three-fold:
 3. A demonstration that SPARROWS outperforms similar state-of-the-art methods on
    a set of challenging motion planning tasks
 
-# Random Obstacles Demo
-<div class="video-container" style="display: flex; flex-wrap: wrap; justify-content: space-between; magin: 0 -10px;">
+</div>
+
+<div markdown="1" class="content-block grey justify">
+# [Simulation Results](#simulation-results)
+
+## Random Scenarios
+
+The following videos demonstrate the performance of SPARROWS to other methods in randomly generated hard schenarios.
+In each of these, SPARROWS is able to acheive the desired goal configuration while the others don't.
+ARMTD does stop in a safe configuration, but it gets stuck and fails make it to the goal.
+On the other hand, MPOT and TRAJOPT both stop due to colliding with the environment.
+
+<div class="video-container">
     <div class="video-item">
-        <video controls>
+        <video controls disablepictureinpicture playsinline muted class="autoplay-in-frame" loop>
             <source src="assets/combined_10_obstacles.mp4" type="video/mp4">
             Your browser does not support the video tag.
         </video>
-        <p align="center"> 10 obstacles</p>
+        <p> 10 obstacles</p>
     </div>
     <div class="video-item">
-        <video controls>
+        <video controls disablepictureinpicture playsinline muted class="autoplay-in-frame" loop>
             <source src="assets/combined_20_obstacles.mp4" type="video/mp4">
             Your browser does not support the video tag.
         </video>
-        <p align="center"> 20 obstacles</p>
+        <p> 20 obstacles</p>
     </div>
     <div class="video-item">
-        <video controls>
+        <video controls disablepictureinpicture playsinline muted class="autoplay-in-frame" loop>
             <source src="assets/combined_40_obstacles.mp4" type="video/mp4">
             Your browser does not support the video tag.
         </video>
-        <p align="center"> 40 obstacles</p>
+        <p> 40 obstacles</p>
     </div>
     <!-- Repeat the above structure for more videos -->
 </div>
 
-# Hard Scenarios Demo
-<div class="video-container" style="display: flex; flex-wrap: wrap; justify-content: space-between; magin: 0 -10px;">
-    <div class="video-item">
-        <video controls>
+## Hard Scenarios
+
+We also handcraft hard scenarios where the arm must go around large obstacles and maneuver through tight spaces.
+SPARROWS' performance on a handful of these scenarios is demonstrated below.
+
+<div class="video-container">
+    <div class="video-item tighter">
+        <video controls disablepictureinpicture playsinline muted class="autoplay-in-frame" loop>
             <source src="assets/sparrows_hard_scenarios_2.mp4" type="video/mp4">
             Your browser does not support the video tag.
         </video>
     </div>
-    <div class="video-item">
-        <video controls>
+    <div class="video-item tighter">
+        <video controls disablepictureinpicture playsinline muted class="autoplay-in-frame" loop>
             <source src="assets/sparrows_hard_scenarios_3.mp4" type="video/mp4">
             Your browser does not support the video tag.
         </video>
     </div>
-    <div class="video-item">
-        <video controls>
+    <div class="video-item tighter">
+        <video controls disablepictureinpicture playsinline muted class="autoplay-in-frame" loop>
             <source src="assets/sparrows_hard_scenarios_4.mp4" type="video/mp4">
             Your browser does not support the video tag.
         </video>
     </div>
-    <div class="video-item">
-        <video controls>
+    <div class="video-item tighter">
+        <video controls disablepictureinpicture playsinline muted class="autoplay-in-frame" loop>
             <source src="assets/sparrows_hard_scenarios_8.mp4" type="video/mp4">
             Your browser does not support the video tag.
         </video>
     </div>
-    <div class="video-item">
-        <video controls>
+    <div class="video-item tighter">
+        <video controls disablepictureinpicture playsinline muted class="autoplay-in-frame" loop>
             <source src="assets/sparrows_hard_scenarios_11.mp4" type="video/mp4">
             Your browser does not support the video tag.
         </video>
     </div>
 </div>
 
-# Citation
+</div>
+
+<!-- <div markdown="1" class="content-block grey justify">
+# [Citation](#citation)
+
+*Insert whatever message*
+
+```bibtex
+@article{michaux2024sparrows,
+  title={Safe Planning for Articulated Robots Using Reachability-based Obstacle Avoidance With Spheres},
+  author={Jonathan Michaux and Adam Li and Qingyi Chen and Che Chen and Bohao Zhang and Ram Vasudevan},
+  journal={ArXiv},
+  year={2024},
+  volume={},
+}
+```
+</div> -->
+
+
+<!-- below are some special scripts -->
+<script>
+  // Get all video elements
+  const videos = document.querySelectorAll('.autoplay-in-frame');
+
+  // Create an IntersectionObserver instance for each video
+  videos.forEach(video => {
+    const observer = new IntersectionObserver(entries => {
+      const isVisible = entries[0].isIntersecting;
+      if (isVisible && video.paused) {
+        video.play();
+      } else if (!isVisible && !video.paused) {
+        video.pause();
+      }
+    }, { threshold: 0.7 });
+
+    observer.observe(video);
+  });
+</script>
 
 <!-- # [Content](#content) -->
 <!-- <div markdown="1" class="content-block grey justify no-pre"> -->
