@@ -145,21 +145,21 @@ On the other hand, MPOT and TRAJOPT both stop due to colliding with the environm
 <!-- START RANDOM VIDEOS -->
 <div class="video-container">
   <div class="video-item">
-    <video class="autoplay-in-frame" disableremoteplayback disablepictureinpicture playsinline muted loop onclick="this.paused ? this.play() : this.pause();">
+    <video class="autoplay-in-frame" preload="none" disableremoteplayback disablepictureinpicture playsinline muted loop onclick="this.paused ? this.play() : this.pause();">
       <source src="assets/combined_10_obstacles.mp4" type="video/mp4">
       Your browser does not support the video tag.
     </video>
     <p>10 obstacles</p>
   </div>
   <div class="video-item">
-    <video class="autoplay-in-frame" disableremoteplayback disablepictureinpicture playsinline muted loop onclick="this.paused ? this.play() : this.pause();">
+    <video class="autoplay-in-frame" preload="none" disableremoteplayback disablepictureinpicture playsinline muted loop onclick="this.paused ? this.play() : this.pause();">
       <source src="assets/combined_20_obstacles.mp4" type="video/mp4">
       Your browser does not support the video tag.
     </video>
     <p>20 obstacles</p>
   </div>
   <div class="video-item">
-    <video class="autoplay-in-frame" disableremoteplayback disablepictureinpicture playsinline muted loop onclick="this.paused ? this.play() : this.pause();">
+    <video class="autoplay-in-frame" preload="none" disableremoteplayback disablepictureinpicture playsinline muted loop onclick="this.paused ? this.play() : this.pause();">
       <source src="assets/combined_40_obstacles.mp4" type="video/mp4">
       Your browser does not support the video tag.
     </video>
@@ -175,31 +175,31 @@ SPARROWS' performance on a handful of these scenarios is demonstrated below.
 <!-- START HARD VIDEOS -->
 <div class="video-container">
   <div class="video-item tighter">
-    <video class="autoplay-in-frame" disableremoteplayback disablepictureinpicture playsinline muted loop onclick="this.paused ? this.play() : this.pause();">
+    <video class="autoplay-in-frame" preload="none" disableremoteplayback disablepictureinpicture playsinline muted loop onclick="this.paused ? this.play() : this.pause();">
       <source src="assets/sparrows_hard_scenarios_2.mp4" type="video/mp4">
       Your browser does not support the video tag.
     </video>
   </div>
   <div class="video-item tighter">
-    <video class="autoplay-in-frame" disableremoteplayback disablepictureinpicture playsinline muted loop onclick="this.paused ? this.play() : this.pause();">
+    <video class="autoplay-in-frame" preload="none" disableremoteplayback disablepictureinpicture playsinline muted loop onclick="this.paused ? this.play() : this.pause();">
       <source src="assets/sparrows_hard_scenarios_3.mp4" type="video/mp4">
       Your browser does not support the video tag.
     </video>
   </div>
   <div class="video-item tighter">
-    <video class="autoplay-in-frame" disableremoteplayback disablepictureinpicture playsinline muted loop onclick="this.paused ? this.play() : this.pause();">
+    <video class="autoplay-in-frame" preload="none" disableremoteplayback disablepictureinpicture playsinline muted loop onclick="this.paused ? this.play() : this.pause();">
       <source src="assets/sparrows_hard_scenarios_8.mp4" type="video/mp4">
       Your browser does not support the video tag.
     </video>
   </div>
   <div class="video-item tighter">
-    <video class="autoplay-in-frame" disableremoteplayback disablepictureinpicture playsinline muted loop onclick="this.paused ? this.play() : this.pause();">
+    <video class="autoplay-in-frame" preload="none" disableremoteplayback disablepictureinpicture playsinline muted loop onclick="this.paused ? this.play() : this.pause();">
       <source src="assets/sparrows_hard_scenarios_4.mp4" type="video/mp4">
       Your browser does not support the video tag.
     </video>
   </div>
   <div class="video-item tighter">
-    <video class="autoplay-in-frame" disableremoteplayback disablepictureinpicture playsinline muted loop onclick="this.paused ? this.play() : this.pause();">
+    <video class="autoplay-in-frame" preload="none" disableremoteplayback disablepictureinpicture playsinline muted loop onclick="this.paused ? this.play() : this.pause();">
       <source src="assets/sparrows_hard_scenarios_11.mp4" type="video/mp4">
       Your browser does not support the video tag.
     </video>
