@@ -219,7 +219,7 @@ SPARROWS' performance on a handful of these scenarios is demonstrated below.
 
 <!-- START HARD VIDEOS -->
 <div class="video-container">
-  <div class="video-item">
+  <div class="video-item tighter">
     <video
       class="autoplay-in-frame"
       preload="none"
