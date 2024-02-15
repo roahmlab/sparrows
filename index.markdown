@@ -44,7 +44,7 @@ links:
   - icon: arxiv
     icon-library: simpleicons
     text: ArXiv
-    url: https://arxiv.org/
+    url: https://arxiv.org/abs/2402.08857
   - icon: github
     icon-library: simpleicons
     text: Code
@@ -297,10 +297,10 @@ SPARROWS' performance on a handful of these scenarios is demonstrated below.
 </div><!-- END HARD VIDEOS -->
 </div><!-- END RESULTS -->
 
-<!-- <div markdown="1" class="content-block grey justify">
+<div markdown="1" class="content-block grey justify">
 # [Citation](#citation)
 
-*Insert whatever message*
+This project was developed in [Robotics and Optimization for Analysis of Human Motion (ROAHM) Lab](http://www.roahmlab.com/) at University of Michigan - Ann Arbor.
 
 ```bibtex
 @article{michaux2024sparrows,
@@ -308,10 +308,10 @@ SPARROWS' performance on a handful of these scenarios is demonstrated below.
   author={Jonathan Michaux and Adam Li and Qingyi Chen and Che Chen and Bohao Zhang and Ram Vasudevan},
   journal={ArXiv},
   year={2024},
-  volume={},
-}
+  volume={abs/2402.08857},
+  url={https://arxiv.org/abs/2402.08857}}
 ```
-</div> -->
+</div>
 
 
 <!-- below are some special scripts -->
