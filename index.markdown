@@ -297,7 +297,15 @@ SPARROWS' performance on a handful of these scenarios is demonstrated below.
 </div><!-- END HARD VIDEOS -->
 </div><!-- END RESULTS -->
 
+<div markdown="1" class="justify">
+  
+# [Related Projects](#related-projects)
+  
+* [Autonomous Robust Manipulation via Optimization with Uncertainty-aware Reachability](https://roahmlab.github.io/armour/)
+* [Reachability-based Trajectory Design with Neural Implicit Safety Constraints](https://roahmlab.github.io/RDF/)
+
 <div markdown="1" class="content-block grey justify">
+  
 # [Citation](#citation)
 
 This project was developed in [Robotics and Optimization for Analysis of Human Motion (ROAHM) Lab](http://www.roahmlab.com/) at University of Michigan - Ann Arbor.
