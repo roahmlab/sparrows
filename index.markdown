@@ -22,7 +22,7 @@ image:
 
 # Only the first author is supported by twitter metadata
 authors:
-  - name: Jonathan Michaux
+  - name: [Jonathan Michaux](https://jonmichaux.com/)
     email: jmichaux@umich.edu
   - name: Adam Li
     email: adamli@umich.edu
