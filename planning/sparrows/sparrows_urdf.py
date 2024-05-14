@@ -395,13 +395,13 @@ if __name__ == '__main__':
         obs_size_max = [0.2,0.2,0.2],
         obs_gen_buffer = 0.01,
         info_nearest_obstacle_dist = True,
-        renderer = 'pyrender-offscreen',
+        renderer = 'blender',
         n_obs=5,
         )
     # obs = env.reset()
     obs = env.reset(
-        # qpos=np.array([-1.3030, -1.9067,  2.0375, -1.5399, -1.4449,  1.5094,  1.9071]),
-        qpos=np.array([0.7234,  1.6843,  2.5300, -1.0317, -3.1223,  1.2235,  1.3428])-0.2,
+        qpos=np.array([-1.3030, -1.9067,  2.0375, -1.5399, -1.4449,  1.5094,  1.9071]),
+        # qpos=np.array([0.7234,  1.6843,  2.5300, -1.0317, -3.1223,  1.2235,  1.3428])-0.2,
         qvel=np.array([0,0,0,0,0,0,0.]),
         qgoal = np.array([ 0.7234,  1.6843,  2.5300, -1.0317, -3.1223,  1.2235,  1.3428]),
         obs_pos=[
@@ -463,7 +463,7 @@ if __name__ == '__main__':
         joint_radius_override=joint_radius_override, spheres_per_link=5, filter_links=True, check_self_collisions=False)
 
     from visualizations.sphere_viz import SpherePlannerViz
-    plot_full_set = True
+    plot_full_set = False
     sphereviz = SpherePlannerViz(planner, plot_full_set=plot_full_set, t_full=T_FULL)
     env.add_render_callback('spheres', sphereviz.render_callback, needs_time=not plot_full_set)
 
@@ -513,9 +513,10 @@ if __name__ == '__main__':
     waypoint_generator = GoalWaypointGenerator(obs['qgoal'], planner.osc_rad*3)
 
     total_stats = {}
-    n_steps = 100
+    n_steps = 10
     ka = np.zeros(rob.dof)
-    for _ in range(n_steps):
+    from tqdm import tqdm
+    for _ in tqdm(range(n_steps)):
         ts = time.time()
         qpos, qvel = obs['qpos'], obs['qvel']
         obstacles = (np.asarray(obs['obstacle_pos']), np.asarray(obs['obstacle_size']))

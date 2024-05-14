@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from environments.urdf_base import KinematicUrdfBase
 
 
-class SpherePlannerViz:
+class SpherePlannerTaperedViz:
     def __init__(
             self,
             planner: SPARROWS_3D_planner,
@@ -86,6 +86,7 @@ class SpherePlannerViz:
             return self._render_callback_step(env, timestep)
 
     def _render_callback_full(self, env):
+        raise NotImplementedError
         if self.ka is None:
             return None
 
@@ -111,27 +112,11 @@ class SpherePlannerViz:
                 if sphere_mat is None:
                     sphere_mat = bpy.data.materials.new(name="SphereFullsetMatFailsafe")
                     sphere_mat.use_nodes = True
-                    ### Pre-set Color
-                    sphere_mat.blend_method = 'BLEND'
-                    sphere_mat.shadow_method = 'NONE'
-                    sphere_mat.show_transparent_back = False
-                    sphere_principled = sphere_mat.node_tree.nodes["Principled BSDF"]
-                    sphere_principled.inputs["Base Color"].default_value = (0.456, 0.125, 0.799, 0.3)
-                    sphere_principled.inputs["Alpha"].default_value = 0.3 #
-                    ###
             else:
                 sphere_mat = bpy.data.materials.get("SphereFullsetMat")
                 if sphere_mat is None:
                     sphere_mat = bpy.data.materials.new(name="SphereFullsetMat")
                     sphere_mat.use_nodes = True
-                    ### Pre-set Color
-                    sphere_mat.blend_method = 'BLEND'
-                    sphere_mat.shadow_method = 'NONE'
-                    sphere_mat.show_transparent_back = False
-                    sphere_principled = sphere_mat.node_tree.nodes["Principled BSDF"]
-                    sphere_principled.inputs["Base Color"].default_value = (0.456, 0.125, 0.799, 0.3)
-                    sphere_principled.inputs["Alpha"].default_value = 0.3 #
-                    ###
             itr = getattr(self, 'itr', 1)
             viz_collection = getattr(self, 'viz_collection', None)
             if viz_collection is None:
@@ -178,7 +163,7 @@ class SpherePlannerViz:
         timestep = timestep if not self.failsafe else timestep + self.t_plan
 
         # Get the meshes for the interpolated spheres
-        meshes = sphere_meshes_at_time(timestep, self.joint_centers, self.joint_radii, self.planner.p_idx, self.planner.spheres_per_link, t_full=self.t_full)
+        meshes = tapered_meshes_at_time(timestep, self.joint_centers, self.joint_radii, self.planner.p_idx, t_full=self.t_full)
 
         # Create the spheres in the scene for pyrender
         if env.renderer == RENDERER.PYRENDER or env.renderer == RENDERER.PYRENDER_OFFSCREEN:
@@ -195,28 +180,28 @@ class SpherePlannerViz:
             #         obj.keyframe_delete(data_path="hide_render")
             #         obj.keyframe_delete(data_path="hide_viewport")
             if self.failsafe:
-                sphere_mat = bpy.data.materials.get("SphereReachsetMatFailsafe")
-                if sphere_mat is None:
-                    sphere_mat = bpy.data.materials.new(name="SphereReachsetMatFailsafe")
-                    sphere_mat.use_nodes = True
+                tapered_mat = bpy.data.materials.get("TaperedReachsetMatFailsafe")
+                if tapered_mat is None:
+                    tapered_mat = bpy.data.materials.new(name="TaperedReachsetMatFailsafe")
+                    tapered_mat.use_nodes = True
             else:
-                sphere_mat = bpy.data.materials.get("SphereReachsetMat")
-                if sphere_mat is None:
-                    sphere_mat = bpy.data.materials.new(name="SphereReachsetMat")
-                    sphere_mat.use_nodes = True
+                tapered_mat = bpy.data.materials.get("TaperedReachsetMat")
+                if tapered_mat is None:
+                    tapered_mat = bpy.data.materials.new(name="TaperedReachsetMat")
+                    tapered_mat.use_nodes = True
             itr = getattr(self, 'itr', 1)
             viz_collection = getattr(self, 'viz_collection', None)
             if viz_collection is None:
-                viz_collection = bpy.data.collections.new('sphere_reachset_viz')
+                viz_collection = bpy.data.collections.new('tapered_reachset_viz')
                 env.scene.collection.children.link(viz_collection)
                 self.viz_collection = viz_collection
             
-            viz_subcollection = bpy.data.collections.new(f'sphere_reachset_viz_{itr}')
+            viz_subcollection = bpy.data.collections.new(f'tapered_reachset_viz_{itr}')
             viz_collection.children.link(viz_subcollection)
             current_frame = env.scene.frame_current
             self.all_last_obj = []
             for i, mesh in enumerate(meshes):
-                name = f'sphere_fullset_mesh_{itr}_{i}'
+                name = f'tapered_fullset_mesh_{itr}_{i}'
                 bpy_mesh = bpy.data.meshes.new(name)
                 bpy_mesh.from_pydata(mesh.vertices, [], mesh.faces, shade_flat=False)
                 bpy_mesh.validate()
@@ -230,7 +215,7 @@ class SpherePlannerViz:
                 bpy_obj.hide_viewport = False
                 bpy_obj.keyframe_insert(data_path="hide_render", frame=current_frame)
                 bpy_obj.keyframe_insert(data_path="hide_viewport", frame=current_frame)
-                bpy_obj.data.materials.append(sphere_mat)
+                bpy_obj.data.materials.append(tapered_mat)
                 viz_subcollection.objects.link(bpy_obj)
                 self.all_last_obj.append(bpy_obj)
             self.itr = itr + 1
@@ -352,12 +337,11 @@ class FullSetMeshGenerator:
         return all_meshes
 
 
-def sphere_meshes_at_time(
+def tapered_meshes_at_time(
         timestep: float,
         joint_centers: Tensor,
         joint_radii: Tensor, 
         joint_pair_idxs: Tensor,
-        spheres_per_pair: int,
         t_full: float = 1.0,
         ) -> List[Trimesh]:
     ''' Generate the meshes for visualization at a given timestep. Interpolates so not technically correct for usage, but is visually representative.
@@ -382,15 +366,14 @@ def sphere_meshes_at_time(
     prop_2 = idx - idx_1
 
     # get the proportion of each value to interpolate
-    joint_centers_step = joint_centers[:,idx_1]*(1-prop_2) + joint_centers[:,idx_2]*prop_2
-    joint_radii_step = joint_radii[:,idx_1]*(1-prop_2) + joint_radii[:,idx_2]*prop_2
-    centers = joint_centers_step[joint_pair_idxs]
-    radii = joint_radii_step[joint_pair_idxs]
-    link_centers, link_radii = make_spheres(centers[0], centers[1], radii[0], radii[1], n_spheres=spheres_per_pair)
+    joint_centers = joint_centers[:,idx_1]*(1-prop_2) + joint_centers[:,idx_2]*prop_2
+    joint_radii = joint_radii[:,idx_1]*(1-prop_2) + joint_radii[:,idx_2]*prop_2
+    joint_centers = joint_centers.cpu().numpy()
+    joint_radii = joint_radii.cpu().numpy()
+    joint_spheres = np.array([trimesh.primitives.Sphere(radius=radius, center=center) for center, radius in zip(joint_centers, joint_radii)])
+    
+    jp_idxs = joint_pair_idxs.cpu().numpy()
+    pairs = joint_spheres[jp_idxs].T
+    tcapsules = [(spheres[0] + spheres[1]).convex_hull for spheres in pairs]
 
-    # Combine the joint and link values
-    centers = torch.cat((joint_centers_step.view(-1,3), link_centers.view(-1,3)), dim=0).cpu().numpy()
-    radii = torch.cat((joint_radii_step.view(-1), link_radii.view(-1)), dim=0).cpu().numpy()
-
-    # Create the spheres
-    return [trimesh.primitives.Sphere(radius=radius, center=center) for center, radius in zip(centers, radii)]
+    return tcapsules

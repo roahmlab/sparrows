@@ -2,6 +2,8 @@ import torch
 import argparse
 import numpy as np
 import time
+import csv
+from scipy.io import loadmat, matlab
 import json
 import random
 from tqdm import tqdm
@@ -9,7 +11,7 @@ from environments.urdf_obstacle import KinematicUrdfWithObstacles
 from environments.fullstep_recorder import FullStepRecorder
 from planning.armtd.armtd_3d_urdf import ARMTD_3D_planner
 from planning.sparrows.sparrows_urdf import SPARROWS_3D_planner
-from planning.common.waypoints import GoalWaypointGenerator
+from planning.common.waypoints import GoalWaypointGenerator, CustomWaypointGenerator
 from visualizations.fo_viz import FOViz
 from visualizations.sphere_viz import SpherePlannerViz
 from visualizations.robot_step_viz import RobotStepViz
@@ -30,12 +32,14 @@ def evaluate_planner(planner,
                      save_success_trial_id=False, 
                      video=False, 
                      reachset_viz=False, 
+                     buffer_size=0.0, 
                      time_limit=0.5, 
                      detail=True, 
                      t_final_thereshold=0.,
                      check_self_collision=True,
-                     blender=True,
-                    traj=False,
+                     blender=False,
+                     traj=False,
+                     use_hlp=False,
                     ):
     t_armtd = 0.0
     num_success = 0
@@ -53,21 +57,40 @@ def evaluate_planner(planner,
         import platform
         if platform.system() == "Linux":
             os.environ['PYOPENGL_PLATFORM'] = 'egl'
-        video_folder = f'planning_videos/{planner_name}/3d{n_links}links{n_obs}obs'
+        video_folder = f'multiarm_scenario_planning_videos/{planner_name}'
         if reachset_viz:
             video_folder += '_reachset'
         if not os.path.exists(video_folder):
             os.makedirs(video_folder)
     if blender:
-        blender_folder = f'planning_blender_files/{planner_name}/3d{n_links}links{n_obs}obs'
+        blender_folder = f'multiarm_scenario_planning_blender_files/{planner_name}'
         if not os.path.exists(blender_folder):
             os.makedirs(blender_folder)
     if detail:
         import pickle
         planning_details = {}
         trial_details = {}
+    
+    for i_env in tqdm(env_indices):
+        dir = 'multiarm_kinova_scenarios'
+        scene_name = f'{dir}/scene_{str(i_env).zfill(3)}.csv'
+        obstacle_centers = []
+        obstacle_sizes = []
+        with open(scene_name, mode ='r') as file:   
+            csvFile = csv.reader(file)
+            line_number = 0
+            for line in csvFile:
+                    if line_number == 0:
+                        qstart = np.array([float(num) / 180.0 * 3.1416 for num in line if num != 'NaN'])
+                    elif line_number == 1:
+                        qgoal = np.array([float(num) / 180.0 * 3.1416 for num in line])
+                    elif line_number > 2:
+                        obstacle_centers.append([float(num) for num in line][:3])
+                        obstacle_sizes.append([float(num) for num in line][3:6])
+                    line_number += 1
+            n_obs = len(obstacle_centers)
         
-    env_args = dict(
+        env_args = dict(
             step_type='integration',
             check_joint_limits=True,
             check_self_collision=True,
@@ -82,16 +105,16 @@ def evaluate_planner(planner,
             obs_gen_buffer = 0.01,
             goal_use_mesh = True,
         )
-    env = KinematicUrdfWithObstacles(
-            robot=rob.urdf,
-            **env_args
-        )
-    
-    for i_env in tqdm(env_indices):    
-        set_random_seed(i_env)
-        obs = env.reset()
-        if i_env != 3 and i_env != 5 and i_env != 2:
-            continue
+        
+        if blender:
+            renderer_args = {'filename': os.path.join(blender_folder, f"{planner_name}_hard_scene{i_env}.blend")}
+            if traj:
+                renderer_args.update({'render_frames': 1})
+            env_args['renderer_kwargs'] = renderer_args
+        env = KinematicUrdfWithObstacles(
+                robot=rob.urdf,
+                **env_args
+            )
         if reachset_viz:
             if 'sphere' in planner_name:
                 viz = SpherePlannerViz(planner, plot_full_set=True, t_full=T_FULL)
@@ -100,19 +123,29 @@ def evaluate_planner(planner,
             else:
                 raise NotImplementedError(f"Visualizer for {planner_name} type has not been implemented yet.")
             env.add_render_callback('spheres', viz.render_callback, needs_time=False)
+        
         if traj:
             traj_viz = RobotStepViz()
             env.add_render_callback('trajectory', traj_viz.render_callback, needs_time=False)
         
-        if blender:
-            renderer_args = {'filename': os.path.join(blender_folder, f"{planner_name}_random_scene{i_env}.blend")}
-            if traj:
-                renderer_args.update({'render_frames': 1})
-            env_args['renderer_kwargs'] = renderer_args
-            env.renderer_kwargs = renderer_args
-
-        waypoint_generator = GoalWaypointGenerator(obs['qgoal'], planner.osc_rad*3)
-            
+        obs = env.reset(
+                qpos = qstart, 
+                qvel = np.zeros_like(qstart), 
+                qgoal = qgoal, 
+                obs_pos = obstacle_centers,
+                obs_size=obstacle_sizes,
+        )
+        
+        ### Load waypoints
+        if use_hlp:
+            mat_filename = os.path.join(dir, 'results', f'traj_data_{i_env}.mat')
+            mat_data = loadmat(mat_filename)
+            waypoints = mat_data['pos']        
+            waypoint_generator = CustomWaypointGenerator(waypoints, qgoal, planner.osc_rad*3)
+        else:
+            waypoint_generator = GoalWaypointGenerator(qgoal, planner.osc_rad*3)
+        
+        ###
         if detail:
             planning_details[i_env] = {
                 'initial': obs,
@@ -224,6 +257,7 @@ def evaluate_planner(planner,
         't_final_thereshold': t_final_thereshold,
         'num_success': num_success,
         'num_collision': num_collision,
+        "use_hlp": use_hlp,
         'mean planning time': np.mean(np.array(t_armtd_list)),
         'std planning time': np.std(np.array(t_armtd_list)),
         'mean planning time for success trials': np.mean(np.array(t_success_list)),
@@ -237,28 +271,26 @@ def evaluate_planner(planner,
         stats.update({'trial_details': trial_details})
     stats.update({'env_args': env_args})
         
-    with open(f"planning_results/3d{n_links}links{n_obs}obs/{planner_name}_stats_3d{n_links}links{n_envs}trials{n_obs}obs{n_steps}steps_{time_limit}limit.json", 'w') as f:
+    with open(f"multiarm_scenario_planning_results/{planner_name}_stats_3d{n_links}links{n_envs}trials{n_obs}obs{n_steps}steps_{time_limit}limit.json", 'w') as f:
         if save_success_trial_id:
             stats['success_episodes'] = success_episodes
         json.dump(stats, f, indent=2)
     if detail:
-        with open(f"planning_results/3d{n_links}links{n_obs}obs/{planner_name}_stats_3d{n_links}links{n_envs}trials{n_obs}obs{n_steps}steps_{time_limit}limit.pkl", 'wb') as f:
+        with open(f"multiarm_scenario_planning_results/{planner_name}_stats_3d{n_links}links{n_envs}trials{n_obs}obs{n_steps}steps_{time_limit}limit.pkl", 'wb') as f:
             pickle.dump(planning_details, f)
         
     return stats
     
-
 def read_params():
-    parser = argparse.ArgumentParser(description="Arm Planning")
+    parser = argparse.ArgumentParser(description="Scenario Planning")
     # general setting
     parser.add_argument("--planner", type=str, default="sphere") # "armtd", "sphere"
     parser.add_argument('--robot_type', type=str, default="branched")
-    parser.add_argument('--n_robots', type=int, default=1)
+    parser.add_argument('--n_robots', type=int, default=2)
     parser.add_argument('--n_links', type=int, default=7)
     parser.add_argument('--n_dims', type=int, default=3)
     parser.add_argument('--n_obs', type=int, default=5)
-    parser.add_argument('--n_envs', type=int, default=500)
-    parser.add_argument('--n_steps', type=int, default=150)
+    parser.add_argument('--n_steps', type=int, default=100)
     parser.add_argument('--device', type=str, default='cuda:0' if torch.cuda.is_available() else 'cpu')
 
     # visualization settings
@@ -268,10 +300,12 @@ def read_params():
     parser.add_argument('--traj',  action='store_true')
     
     # optimization info
+    parser.add_argument('--buffer_size', type=float, default=0.03)
     parser.add_argument('--num_spheres', type=int, default=5)
     parser.add_argument('--time_limit',  type=float, default=1e20)
     parser.add_argument('--t_final_thereshold', type=float, default=0.2)
     parser.add_argument('--filter', action='store_true')
+    parser.add_argument('--hlp', action='store_true')
     parser.add_argument('--check_self_collision', action='store_true')
     parser.add_argument('--solver', type=str, default="ma27")
 
@@ -290,10 +324,10 @@ if __name__ == '__main__':
     device = torch.device(params.device)
     n_links = params.n_links * params.n_robots
 
-    print(f"Running {params.n_envs}trials of {planner_name} 3D{n_links}Links{params.n_obs}obs with {params.n_steps} step limit and {params.time_limit}s time limit each step")
+    print(f"Running {planner_name} 3D{n_links}Links with {params.n_steps} step limit and {params.time_limit}s time limit each step")
     print(f"Using device {device}")
     
-    planning_result_dir = f'planning_results/3d{n_links}links{params.n_obs}obs'
+    planning_result_dir = f'multiarm_scenario_planning_results/'
     if not os.path.exists(planning_result_dir):
         os.makedirs(planning_result_dir)
     
@@ -308,7 +342,6 @@ if __name__ == '__main__':
         robot_path = 'robots/assets/robots/kinova_arm/gen3.urdf'
     rob = robots2.ZonoArmRobot.load(os.path.join(basedirname, robot_path), device=device, create_joint_occupancy=True)
 
-    env_indices = range(0, params.n_envs)
     if planner_name == 'armtd' or planner_name == 'all' or planner_name == 'both':
         planner = ARMTD_3D_planner(
             rob, 
@@ -318,24 +351,27 @@ if __name__ == '__main__':
         )
         filter_identifier = 'F' if params.filter else ''
         self_collision_identifier = '_SC' if params.check_self_collision else ''
+        hlp_identifier = '_HLP' if params.hlp else ''
         stats['armtd'] = evaluate_planner(
             planner=planner,
-            planner_name=f'armtd{filter_identifier}{self_collision_identifier}_{params.n_robots}{params.robot_type}_t{params.time_limit}', 
-            env_indices=env_indices, 
+            planner_name=f'armtd{filter_identifier}{self_collision_identifier}{hlp_identifier}_{params.n_robots}{params.robot_type}_t{params.time_limit}', 
+            env_indices=range(1,6), 
             n_steps=params.n_steps, 
             n_links=n_links, 
             n_obs=params.n_obs,
             save_success_trial_id=params.save_success, 
             video=params.video,
             reachset_viz=params.reachset,
+            buffer_size=params.buffer_size,
             time_limit=params.time_limit,
             detail=params.detail,
             t_final_thereshold=params.t_final_thereshold,
             check_self_collision=params.check_self_collision,
             blender=params.blender,
             traj=params.traj,
+            use_hlp=params.hlp,
         )
-        
+
     if planner_name == 'sphere' or planner_name == 'all' or planner_name == 'both':
         joint_radius_override_base = {
                 'joint_1': torch.tensor(0.0503305, dtype=torch.float, device=device),
@@ -366,20 +402,23 @@ if __name__ == '__main__':
         )
         filter_identifier = 'F' if params.filter else ''
         self_collision_identifier = '_SC' if params.check_self_collision else ''
+        hlp_identifier = '_HLP' if params.hlp else ''
         stats['spheres_armtd'] = evaluate_planner(
             planner=planner,
-            planner_name=f'sphere{filter_identifier}{self_collision_identifier}_{params.n_robots}{params.robot_type}_t{params.time_limit}', 
-            env_indices=env_indices, 
+            planner_name=f'sphere{filter_identifier}{self_collision_identifier}{hlp_identifier}_{params.n_robots}{params.robot_type}_t{params.time_limit}', 
+            env_indices=range(1,6), 
             n_steps=params.n_steps, 
             n_links=n_links, 
             n_obs=params.n_obs,
             save_success_trial_id=params.save_success, 
             video=params.video,
             reachset_viz=params.reachset,
+            buffer_size=params.buffer_size,
             time_limit=params.time_limit,
             detail=params.detail,
             t_final_thereshold=params.t_final_thereshold,
             check_self_collision=params.check_self_collision,
             blender=params.blender,
             traj=params.traj,
+            use_hlp=params.hlp
         )

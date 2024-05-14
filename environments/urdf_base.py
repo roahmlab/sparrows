@@ -19,11 +19,26 @@ class STEP_TYPE(str, Enum):
 class RENDERER(str, Enum):
     PYRENDER = 'pyrender'
     PYRENDER_OFFSCREEN = 'pyrender-offscreen'
+    BLENDER = 'blender' # Generates a blend file, requires python 3.10
     # MATPLOTLIB = 'matplotlib' # disabled for now
+
+
+def get_next_available_filename(base_path):
+    directory, filename = os.path.split(base_path)
+    name, extension = os.path.splitext(filename)
+    
+    counter = 0
+    new_path = os.path.join(directory, f"{name}{extension}")
+
+    while os.path.exists(new_path) and os.path.isfile(new_path):
+        counter += 1
+        new_path = os.path.join(directory, f"{name}_{counter}{extension}")
+
+    return new_path
+
 
 # A base environment for basic kinematic simulation of any URDF loaded by Urchin without any reward
 class KinematicUrdfBase:
-    '''Base class for kinematic simulation of any URDF loaded by Urchin without any reward.'''
     DIMENSION = 3
 
     def __init__(self,
@@ -263,6 +278,7 @@ class KinematicUrdfBase:
             state: np.ndarray, shape (dof*2,)
                 The state of the URDF robot, where the first dof elements are the qpos and the next dof elements are the qvel.
         '''
+
         # set or generate a state
         if state is not None:
             self.state = np.copy(state)
@@ -285,6 +301,13 @@ class KinematicUrdfBase:
         self.collision_info = None
         self.joint_limit_info = None
         self._info = None
+
+        # Create a new file if using blender renderer
+        if self.renderer == RENDERER.BLENDER:
+            import bpy
+            if self.scene is not None:
+                self.close()
+            bpy.ops.wm.read_factory_settings(use_empty=True)
 
         return self.get_observations()
     
@@ -577,6 +600,38 @@ class KinematicUrdfBase:
             if step_cleanup_callback is not None:
                 self.last_clear_calls.append(step_cleanup_callback)
             return color_frames, depth_frames
+        # Blender rendering
+        elif renderer == RENDERER.BLENDER:
+            if self.scene is None:
+                self._create_blender_scene(render_mesh, render_size, render_fps, renderer_kwargs)
+            self.last_clear_calls.append(full_render_callback())
+            step_cleanup_callback = None
+            for i in range(render_frames):
+                current_frame = self.scene.frame_current
+                for mesh, bpy_obj in self.scene_map.items():
+                    pose = fk[mesh][i]
+                    bpy_obj.location = pose[:3,3]
+                    bpy_obj.rotation_quaternion = trimesh.transformations.quaternion_from_matrix(pose)
+                    bpy_obj.keyframe_insert(data_path="location", frame=current_frame)
+                    bpy_obj.keyframe_insert(data_path="rotation_quaternion", frame=current_frame)
+                timestep = float(i+1)/render_frames * self.t_step
+                if step_cleanup_callback is not None:
+                    step_cleanup_callback()
+                step_cleanup_callback = step_render_callback(timestep)
+                self.scene.frame_set(current_frame + 1)
+            if step_cleanup_callback is not None:
+                self.last_clear_calls.append(step_cleanup_callback)
+            # Checkpoint save without outputting to stdout
+            save_interval = self.renderer_kwargs.get('save_interval', 5)
+            if save_interval is not None and self._elapsed_steps % save_interval == 0:
+                import bpy
+                import io
+                from contextlib import redirect_stdout
+                stdout = io.StringIO()
+                with redirect_stdout(stdout):
+                    final_frame = self.scene.frame_current - 1
+                    self.scene.frame_end = final_frame
+                    bpy.ops.wm.save_mainfile(compress=True)
 
     def add_render_callback(self, key, callback, needs_time = False):
         '''Add a render callback to the environment.
@@ -635,6 +690,13 @@ class KinematicUrdfBase:
         elif self.renderer == RENDERER.PYRENDER_OFFSCREEN:
             if self.scene_viewer is not None:
                 self.scene_viewer.delete()
+        elif self.renderer == RENDERER.BLENDER:
+            import bpy
+            if self.scene is not None:
+                final_frame = self.scene.frame_current - 1
+                self.scene.frame_end = final_frame
+                self.scene.frame_set(1)
+                bpy.ops.wm.save_mainfile(compress=True)
         self.last_clear_calls = []
         self.scene = None
         self.scene_map = None
@@ -791,6 +853,76 @@ class KinematicUrdfBase:
         q_step[pos_exceeded_upper] = np.broadcast_to(self.pos_lim[1], q_step.shape)[pos_exceeded_upper]
         qd_step[pos_exceeded_upper] = 0
         return q_step, qd_step
+
+    def _create_blender_scene(self, render_mesh, render_size, render_fps, renderer_kwargs):
+        '''Create a base blender scene for rendering.
+
+        Args:
+            render_mesh: bool
+                Whether to render the mesh.
+            render_size: Tuple[int, int]
+                The size of the render in the scene.
+            render_fps: int
+                The frames per second to save in the blend metadata.
+            renderer_kwargs: dict
+                Extra kwargs to pass to the renderer.
+        '''
+        import bpy
+        filename = renderer_kwargs.get('filename', 'blender_render.blend') # default filename
+        filename = get_next_available_filename(os.path.join(os.getcwd(), filename))
+        print("Saving blend file to: ", filename)
+        bpy.ops.wm.read_factory_settings(use_empty=True)
+        bpy.ops.wm.save_as_mainfile(filepath=filename)
+        bpy.context.preferences.filepaths.save_version = 0
+        self.scene = bpy.data.scenes.get('Scene')
+        self.scene.render.fps = render_fps
+        self.scene.render.fps_base = 1.0
+        self.scene.render.resolution_x = render_size[0]
+        self.scene.render.resolution_y = render_size[1]
+        self.scene.render.resolution_percentage = 100
+        # Create the robot
+        # OK for now
+        mat = bpy.data.materials.new(name="RobotMaterial")
+        ### Pre-set Color
+        mat.blend_method = 'OPAQUE'
+        mat.shadow_method = 'NONE'
+        mat.show_transparent_back = False
+        mat.use_nodes = True
+        robot_principled = mat.node_tree.nodes["Principled BSDF"]
+        # hex_value = ''
+        # b = (hex_value & 0xFF) / 255.0
+        # g = ((hex_value >> 8) & 0xFF) / 255.0
+        # r = ((hex_value >> 16) & 0xFF) / 255.0
+        robot_principled.inputs["Base Color"].default_value = (0.8, 0.8, 0.8, 1.0)
+        robot_principled.inputs["Alpha"].default_value = 1 #
+        ###
+        robot_collection = bpy.data.collections.new('Robot')
+        self.scene.collection.children.link(robot_collection)
+        self.scene_map = {}
+        
+        ### ADD a light
+        light_data = bpy.data.lights.new(name="light-data", type='AREA')
+        light_data.energy = 100
+        light_data.size = 3.5
+        light_object = bpy.data.objects.new(name="light-object", object_data=light_data)
+        bpy.context.collection.objects.link(light_object)
+        light_object.location = (0, 0, 1.5)
+        ###
+        
+        fk = self.robot.visual_trimesh_fk()
+        for i, (tm, pose) in enumerate(fk.items()):
+            mesh = tm if render_mesh else tm.bounding_box
+            name = f'robot_mesh_{i}'
+            bpy_mesh = bpy.data.meshes.new(name)
+            bpy_mesh.from_pydata(mesh.vertices, [], mesh.faces, shade_flat=True)
+            bpy_obj = bpy.data.objects.new(name, bpy_mesh)
+            bpy_obj.rotation_mode = 'QUATERNION'
+            bpy_obj.location = pose[:3,3]
+            bpy_obj.rotation_quaternion = trimesh.transformations.quaternion_from_matrix(pose)
+            bpy_obj.data.materials.append(mat)
+            self.scene_map[tm] = bpy_obj
+            robot_collection.objects.link(bpy_obj)
+
 
     def _create_pyrender_scene(self, render_mesh, render_size, render_fps, renderer_kwargs):
         '''Create a pyrender scene for rendering.

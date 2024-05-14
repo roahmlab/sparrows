@@ -7,6 +7,7 @@ import pyrender
 import torch
 import zonopy as zp
 from typing import TYPE_CHECKING
+from environments.urdf_base import RENDERER
 
 if TYPE_CHECKING:
     from typing import Union
@@ -104,15 +105,91 @@ class FOViz:
             mesh = trimesh.convex.convex_hull(all_patch)
             meshes.append(mesh)
 
-        pyrender_mesh = pyrender.Mesh.from_trimesh(meshes, material=self.rs_mat if not self.failsafe else self.rs_mat_failsafe, smooth=False)
-        node = env.scene.add(pyrender_mesh)
-        return lambda: env.scene.remove_node(node)
+        if env.renderer == RENDERER.PYRENDER or env.renderer == RENDERER.PYRENDER_OFFSCREEN:
+            pyrender_mesh = pyrender.Mesh.from_trimesh(meshes, material=self.rs_mat if not self.failsafe else self.rs_mat_failsafe, smooth=False)
+            node = env.scene.add(pyrender_mesh)
+            return lambda: env.scene.remove_node(node)
+        
+        elif env.renderer == RENDERER.BLENDER:
+            import bpy
+            # if self.failsafe:
+            #     for obj in self.all_last_obj:
+            #         obj.hide_render = False
+            #         obj.hide_viewport = False
+            #         obj.keyframe_delete(data_path="hide_render")
+            #         obj.keyframe_delete(data_path="hide_viewport")
+            if self.failsafe:
+                armtd_mat = bpy.data.materials.get("ArmTDFullsetMatFailsafe")
+                if armtd_mat is None:
+                    armtd_mat = bpy.data.materials.new(name="ArmTDFullsetMatFailsafe")
+                    armtd_mat.use_nodes = True
+                    ### Pre-set Color
+                    armtd_mat.blend_method = 'BLEND'
+                    armtd_mat.shadow_method = 'NONE'
+                    armtd_mat.show_transparent_back = False
+                    armtd_principled = armtd_mat.node_tree.nodes["Principled BSDF"]
+                    armtd_principled.inputs["Base Color"].default_value = (0.799, 0.491, 0.004, 0.3)
+                    armtd_principled.inputs["Alpha"].default_value = 0.3 #
+                    ###
+            else:
+                armtd_mat = bpy.data.materials.get("ArmTDFullsetMat")
+                if armtd_mat is None:
+                    armtd_mat = bpy.data.materials.new(name="ArmTDFullsetMat")
+                    armtd_mat.use_nodes = True
+                    ### Pre-set Color
+                    armtd_mat.blend_method = 'BLEND'
+                    armtd_mat.shadow_method = 'NONE'
+                    armtd_mat.show_transparent_back = False
+                    armtd_principled = armtd_mat.node_tree.nodes["Principled BSDF"]
+                    armtd_principled.inputs["Base Color"].default_value = (0.799, 0.491, 0.004, 0.3)
+                    armtd_principled.inputs["Alpha"].default_value = 0.3 #
+                    ###
+            itr = getattr(self, 'itr', 1)
+            viz_collection = getattr(self, 'viz_collection', None)
+            if viz_collection is None:
+                viz_collection = bpy.data.collections.new('armtd_fullset_viz')
+                env.scene.collection.children.link(viz_collection)
+                self.viz_collection = viz_collection
+            
+            viz_subcollection = bpy.data.collections.new(f'armtd_fullset_viz_{itr}')
+            viz_collection.children.link(viz_subcollection)
+            current_frame = env.scene.frame_current
+            self.all_last_obj = []
+            for i, mesh in enumerate(meshes):
+                name = f'armtd_fullset_mesh_{itr}_{i}'
+                bpy_mesh = bpy.data.meshes.new(name)
+                bpy_mesh.from_pydata(mesh.vertices, [], mesh.faces, shade_flat=False)
+                bpy_mesh.validate()
+                bpy_mesh.update()
+                bpy_obj = bpy.data.objects.new(name, bpy_mesh)
+                bpy_obj.hide_render = True
+                bpy_obj.hide_viewport = True
+                bpy_obj.keyframe_insert(data_path="hide_render", frame=0)
+                bpy_obj.keyframe_insert(data_path="hide_viewport", frame=0)
+                bpy_obj.hide_render = False
+                bpy_obj.hide_viewport = False
+                bpy_obj.keyframe_insert(data_path="hide_render", frame=current_frame)
+                bpy_obj.keyframe_insert(data_path="hide_viewport", frame=current_frame)
+                bpy_obj.data.materials.append(armtd_mat)
+                viz_subcollection.objects.link(bpy_obj)
+                self.all_last_obj.append(bpy_obj)
+            self.itr = itr + 1
+
+            def hide_all():
+                for obj in self.all_last_obj:
+                    obj.hide_render = True
+                    obj.hide_viewport = True
+                    obj.keyframe_insert(data_path="hide_render")
+                    obj.keyframe_insert(data_path="hide_viewport")
+
+            return hide_all
 
     def _render_callback_step(self, env, timestep):
         if self.ka is None:
             return None
         timestep = timestep if not self.failsafe else timestep + self.t_plan
         idx = timestep / (self.t_full/self.n_frs_timesteps)
+        idx = min(max(idx-1, 0), self.n_frs_timesteps-1)
         idx = int(idx)
 
         meshes = []
@@ -126,6 +203,76 @@ class FOViz:
             mesh = trimesh.convex.convex_hull(patch.reshape(-1,3))
             meshes.append(mesh)
         
-        pyrender_mesh = pyrender.Mesh.from_trimesh(meshes, material=self.rs_mat if not self.failsafe else self.rs_mat_failsafe, smooth=False)
-        node = env.scene.add(pyrender_mesh)
-        return lambda: env.scene.remove_node(node)
+        # Create the fo in the scene for pyrender
+        if env.renderer == RENDERER.PYRENDER or env.renderer == RENDERER.PYRENDER_OFFSCREEN:
+            pyrender_mesh = pyrender.Mesh.from_trimesh(meshes, material=self.rs_mat if not self.failsafe else self.rs_mat_failsafe)
+            node = env.scene.add(pyrender_mesh)
+            return lambda: env.scene.remove_node(node)
+    
+        elif env.renderer == RENDERER.BLENDER:
+            import bpy
+            # if self.failsafe:
+            #     for obj in self.all_last_obj:
+            #         obj.hide_render = False
+            #         obj.hide_viewport = False
+            #         obj.keyframe_delete(data_path="hide_render")
+            #         obj.keyframe_delete(data_path="hide_viewport")
+            if self.failsafe:
+                armtd_mat = bpy.data.materials.get("ArmTDReachsetMatFailsafe")
+                if armtd_mat is None:
+                    armtd_mat = bpy.data.materials.new(name="ArmTDReachsetMatFailsafe")
+                    armtd_mat.use_nodes = True
+            else:
+                armtd_mat = bpy.data.materials.get("ArmTDReachsetMat")
+                if armtd_mat is None:
+                    armtd_mat = bpy.data.materials.new(name="ArmTDReachsetMat")
+                    armtd_mat.use_nodes = True
+            ### Pre-set Color
+            armtd_mat.blend_method = 'BLEND'
+            armtd_mat.use_nodes = True
+            armtd_principled = armtd_mat.node_tree.nodes["Principled BSDF"]
+            armtd_principled.inputs["Base Color"].default_value = (0.799, 0.491, 0.004, 0.3)
+            armtd_principled.inputs["Alpha"].default_value = 0.3 #
+            ###
+            itr = getattr(self, 'itr', 1)
+            viz_collection = getattr(self, 'viz_collection', None)
+            if viz_collection is None:
+                viz_collection = bpy.data.collections.new('armtd_reachset_viz')
+                env.scene.collection.children.link(viz_collection)
+                self.viz_collection = viz_collection
+            
+            viz_subcollection = bpy.data.collections.new(f'armtd_reachset_viz_{itr}')
+            viz_collection.children.link(viz_subcollection)
+            current_frame = env.scene.frame_current
+            self.all_last_obj = []
+            for i, mesh in enumerate(meshes):
+                name = f'armtd_fullset_mesh_{itr}_{i}'
+                bpy_mesh = bpy.data.meshes.new(name)
+                bpy_mesh.from_pydata(mesh.vertices, [], mesh.faces, shade_flat=False)
+                bpy_mesh.validate()
+                bpy_mesh.update()
+                bpy_obj = bpy.data.objects.new(name, bpy_mesh)
+                bpy_obj.hide_render = True
+                bpy_obj.hide_viewport = True
+                bpy_obj.keyframe_insert(data_path="hide_render", frame=0)
+                bpy_obj.keyframe_insert(data_path="hide_viewport", frame=0)
+                bpy_obj.hide_render = False
+                bpy_obj.hide_viewport = False
+                bpy_obj.keyframe_insert(data_path="hide_render", frame=current_frame)
+                bpy_obj.keyframe_insert(data_path="hide_viewport", frame=current_frame)
+                bpy_obj.data.materials.append(armtd_mat)
+                viz_subcollection.objects.link(bpy_obj)
+                self.all_last_obj.append(bpy_obj)
+            self.itr = itr + 1
+
+            def hide_all():
+                for obj in self.all_last_obj:
+                    obj.hide_render = True
+                    obj.hide_viewport = True
+                    obj.keyframe_insert(data_path="hide_render")
+                    obj.keyframe_insert(data_path="hide_viewport")
+
+            return hide_all
+        # pyrender_mesh = pyrender.Mesh.from_trimesh(meshes, material=self.rs_mat if not self.failsafe else self.rs_mat_failsafe, smooth=False)
+        # node = env.scene.add(pyrender_mesh)
+        # return lambda: env.scene.remove_node(node)

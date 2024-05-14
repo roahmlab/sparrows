@@ -270,6 +270,77 @@ class KinematicUrdfWithObstacles(KinematicUrdfBase):
                     mesh = pyrender.Mesh.from_trimesh(tm.bounding_box, smooth=False, material=goal_mat)
                     self.scene.add(mesh, pose=pose)
 
+    def _create_blender_scene(self, *args, **kwargs):
+        import bpy
+        super()._create_blender_scene(*args, **kwargs)
+        # add the obstacles
+        # obs_mat = pyrender.MetallicRoughnessMaterial(
+        #     metallicFactor=0.4,
+        #     alphaMode='BLEND',
+        #     baseColorFactor=(1.0, 0.0, 0.0, 0.3),
+        # )
+        obs_mat = bpy.data.materials.new(name="ObstacleMaterial")
+        ### Pre-set Color
+        obs_mat.use_nodes = True
+        obs_mat.shadow_method = 'NONE'
+        obs_mat.show_transparent_back = False
+        obs_mat.blend_method = 'BLEND'
+        obs_principled = obs_mat.node_tree.nodes["Principled BSDF"]
+        obs_principled.inputs["Base Color"].default_value = (0.947, 0.156, 0.098, 0.5)
+        obs_principled.inputs["Alpha"].default_value = 0.5
+        ###
+        # Add the obstacles
+        obs_collection = bpy.data.collections.new('Obstacles')
+        self.scene.collection.children.link(obs_collection)
+        for i, (mesh, pose) in enumerate(self.obs_meshes.values()):
+            bpy_mesh = bpy.data.meshes.new(f"obstacle_{i}")
+            bpy_mesh.from_pydata(mesh.vertices, [], mesh.faces, shade_flat=True)
+            bpy_obj = bpy.data.objects.new(f"obstacle_{i}", bpy_mesh)
+            bpy_obj.rotation_mode = 'QUATERNION'
+            bpy_obj.location = pose[:3,3]
+            bpy_obj.rotation_quaternion = trimesh.transformations.quaternion_from_matrix(pose)
+            bpy_obj.keyframe_insert(data_path="location", frame=0)
+            bpy_obj.keyframe_insert(data_path="rotation_quaternion", frame=0)
+            bpy_obj.data.materials.append(obs_mat)
+            obs_collection.objects.link(bpy_obj)
+        # Add the goal
+        if self.viz_goal:
+            # goal_mat = pyrender.MetallicRoughnessMaterial(
+            #     metallicFactor=0.2,
+            #     alphaMode='BLEND',
+            #     baseColorFactor=(0.0, 1.0, 0.0, 0.3),
+            # )
+            goal_mat = bpy.data.materials.new(name="GoalMaterial")
+            ### Pre-set Color
+            goal_mat.shadow_method = 'NONE'
+            goal_mat.show_transparent_back = False
+            hex_value = 0x58AF4A
+            b = (hex_value & 0xFF) / 255.0
+            g = ((hex_value >> 8) & 0xFF) / 255.0
+            r = ((hex_value >> 16) & 0xFF) / 255.0
+            goal_mat.use_nodes = True
+            goal_mat.blend_method = 'BLEND'
+            goal_principled = goal_mat.node_tree.nodes["Principled BSDF"]
+            goal_principled.inputs["Base Color"].default_value = (r, g, b, 0.5)
+            goal_principled.inputs["Alpha"].default_value = 0.5
+            ###
+            goal_collection = bpy.data.collections.new('Goal')
+            self.scene.collection.children.link(goal_collection)
+            fk = self.robot.visual_trimesh_fk(self.qgoal)
+            for i, (tm, pose) in enumerate(fk.items()):
+                mesh = tm if self.goal_use_mesh else tm.bounding_box
+                name = f'robot_goal_{i}'
+                bpy_mesh = bpy.data.meshes.new(name)
+                bpy_mesh.from_pydata(mesh.vertices, [], mesh.faces, shade_flat=True)
+                bpy_obj = bpy.data.objects.new(name, bpy_mesh)
+                bpy_obj.rotation_mode = 'QUATERNION'
+                bpy_obj.location = pose[:3,3]
+                bpy_obj.rotation_quaternion = trimesh.transformations.quaternion_from_matrix(pose)
+                bpy_obj.keyframe_insert(data_path="location", frame=0)
+                bpy_obj.keyframe_insert(data_path="rotation_quaternion", frame=0)
+                bpy_obj.data.materials.append(goal_mat)
+                goal_collection.objects.link(bpy_obj)
+
     def _collision_check_obstacle(self, fk_dict, use_bb=True):
         '''Check for collisions with the obstacles
 

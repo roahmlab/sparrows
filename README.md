@@ -1,7 +1,5 @@
 # Safe Planning for Articulated Robots Using Reachability-based Obstacle Avoidance With Spheres
 
-[//]: <[Project Page](https://roahmlab.github.io/RDF/) | [Paper](https://arxiv.org/abs/2302.07352) | [Dataset](https://drive.google.com/drive/folders/1sxRCtuAwi2Ua5BIVX0fLqOBlb95PcFN0?usp=share_link)>
-
 ## Introduction
 This paper addresses the challenge of real-time safe motion planning of manipulators by proposing Safe Planning for Articulated Robots Using Reachability-based Obstacle Avoidance With Spheres (SPARROWS).
 

@@ -1,0 +1,2 @@
+-e git+ssh://git@github.com/roahmlab/zonopy.git@d07e06e534e395ef9873076adc4b160ac89da5b1#egg=zonopy
+-e git+ssh://git@github.com/roahmlab/zonopy-robots.git@2246788251304d780348e455348ed74c3fed269c#egg=zonopy_robots

@@ -76,18 +76,25 @@ if __name__ == '__main__':
         obs_size_max = [0.2,0.2,0.2],
         obs_gen_buffer = 0.01,
         info_nearest_obstacle_dist = True,
-        renderer = 'pyrender-offscreen',
+        renderer = 'blender',
+        # renderer = 'pyrender-offscreen',
         render_frames = 30,
         render_fps = 60,
         seed=42,
-        n_obs=1,
+        n_obs=3,
+        # n_obs=25,
         viz_goal=False,
         )
     # obs = env.reset()
     temp_qpos = np.array([ 2.14326,  1.07385, -0.18000,  1.55052, -1.37706,  0.21373,  2.53945, ])
     temp_qgoal = np.array([ 2.14326,  1.17810, -0.02793,  1.85878, -1.44164,  0.17453,  1.99840, ])
     temp_qvel = (temp_qgoal - temp_qpos)*2
+    # temp_qpos = np.array([0., -0.3, 0., 0.6, 0., -0.9, 0.])
+    # temp_qpos = np.array([0., 3.14*0.2875, 3.14/4, 0.2, -0.4, -0.2, 0.])
+    # temp_qvel = np.array([0., 3.14/12., 0.0, -0.1, 0.4, 0.2, 0])
+    # temp_qgoal = np.array([0., 3.14/2, 3.14/4., 0, 0., 0, 0.])
     obs = env.reset(obs_pos=[np.array([10,10,10])],
+        # obs_pos=[np.array([0.78,0.185,0.25]), np.array([0.78,-0.185,0.25]), np.array([0.78,0.0,0.0])],
         qpos=temp_qpos,
         qvel=temp_qvel,
         qgoal = temp_qgoal,)
@@ -119,9 +126,11 @@ if __name__ == '__main__':
     #         np.array([ 0.4139, -0.1155,  0.7733]),
     #         np.array([ 0.5243, -0.7838,  0.4781])
     #         ])
-    from environments.fullstep_recorder import FullStepRecorder
-    recorder_fo = FullStepRecorder(env, path=os.path.join(os.getcwd(),'mix.fo.mp4'))
-    recorder_sphere = FullStepRecorder(env, path=os.path.join(os.getcwd(),'mix.sphere.mp4'))
+    # from environments.fullstep_recorder import FullStepRecorder
+    # recorder_fo = FullStepRecorder(env, path=os.path.join(os.getcwd(),'mix.fo.mp4'))
+    # recorder_fobuf = FullStepRecorder(env, path=os.path.join(os.getcwd(),'mix.fo_buf.mp4'))
+    # recorder_sphere = FullStepRecorder(env, path=os.path.join(os.getcwd(),'mix.sphere.mp4'))
+    # recorder_tapered = FullStepRecorder(env, path=os.path.join(os.getcwd(),'mix.tapered.mp4'))
 
     ##### 2. RUN ARMTD #####
     import yaml
@@ -165,10 +174,21 @@ if __name__ == '__main__':
     
     plot_full_set = True
     from visualizations.sphere_viz import SpherePlannerViz
+    # from visualizations.tapered_viz import SpherePlannerTaperedViz
     from visualizations.fo_viz import FOViz
     sphereviz = SpherePlannerViz(planner, plot_full_set=plot_full_set, t_full=T_FULL)
+    # sphereviz_full = SpherePlannerViz(planner, plot_full_set=True, t_full=T_FULL)
+    # taperedviz = SpherePlannerTaperedViz(planner, plot_full_set=False, t_full=T_FULL)
     foviz = FOViz(planner, plot_full_set=plot_full_set, t_full=T_FULL)
+    # foviz_full = FOViz(planner, plot_full_set=True, t_full=T_FULL)
+    # fovizbuff = FOViz(planner, plot_full_set=plot_full_set, t_full=T_FULL, addbuffer=0.1)
     
+    # env.add_render_callback('foviz_full', foviz_full.render_callback, needs_time=False)
+    # env.add_render_callback('spheres_full', sphereviz_full.render_callback, needs_time=False)
+    env.add_render_callback('foviz', foviz.render_callback, needs_time=not plot_full_set)
+    env.add_render_callback('spheres', sphereviz.render_callback, needs_time=not plot_full_set)
+    # env.add_render_callback('tapered', taperedviz.render_callback, needs_time=True)
+
     use_last_k = False
     t_armtd = []
     T_NLP = []
@@ -185,7 +205,7 @@ if __name__ == '__main__':
 
     import tqdm
     total_stats = {}
-    n_steps = 2
+    n_steps = 5
     ka = np.zeros(rob.dof)
     for _ in tqdm.tqdm(range(n_steps)):
         ts = time.time()
@@ -195,10 +215,18 @@ if __name__ == '__main__':
         ka, flag, stats = planner.plan(qpos, qvel, wp, obstacles, ka_0=(ka if use_last_k else None))
         if flag == 0:
             sphereviz.set_ka(ka)
+            # sphereviz_full.set_ka(ka)
+            # taperedviz.set_ka(ka)
             foviz.set_ka(ka)
+            # foviz_full.set_ka(ka)
+            # fovizbuff.set_ka(ka)
         else:
             sphereviz.set_ka(None)
+            # sphereviz_full.set_ka(None)
+            # taperedviz.set_ka(None)
             foviz.set_ka(None)
+            # foviz_full.set_ka(None)
+            # fovizbuff.set_ka(None)
 
         t_elasped = time.time()-ts
         t_armtd.append(t_elasped)
@@ -222,16 +250,24 @@ if __name__ == '__main__':
         # if(info['collision_info']['in_collision']):
         #     env.spin()
         #     assert False
-        # env.render()
+        env.render()
         # env.spin(wait_for_enter=True)
         
-        env.add_render_callback('foviz', foviz.render_callback, needs_time=not plot_full_set)
-        recorder_fo.capture_frame()
-        env.remove_render_callback('foviz')
+        # env.add_render_callback('foviz', foviz.render_callback, needs_time=not plot_full_set)
+        # recorder_fo.capture_frame()
+        # env.remove_render_callback('foviz')
 
-        env.add_render_callback('spheres', sphereviz.render_callback, needs_time=not plot_full_set)
-        recorder_sphere.capture_frame()
-        env.remove_render_callback('spheres')
+        # env.add_render_callback('fovizbuff', fovizbuff.render_callback, needs_time=not plot_full_set)
+        # recorder_fobuf.capture_frame()
+        # env.remove_render_callback('fovizbuff')
+
+        # env.add_render_callback('spheres', sphereviz.render_callback, needs_time=not plot_full_set)
+        # recorder_sphere.capture_frame()
+        # env.remove_render_callback('spheres')
+
+        # env.add_render_callback('tapered', taperedviz.render_callback, needs_time=True)
+        # recorder_tapered.capture_frame()
+        # env.remove_render_callback('tapered')
         # if done:
         #     break
     from scipy import stats
@@ -241,5 +277,8 @@ if __name__ == '__main__':
         print(f'{k}: {stats.describe(v)}')
     print(f'number of constraint evals: {stats.describe(N_EVALS)}')
     # env.spin()
-    recorder_fo.close()
-    recorder_sphere.close()
+    # recorder_fo.close()
+    # recorder_fobuf.close()
+    # recorder_sphere.close()
+    # recorder_tapered.close()
+    env.close()
