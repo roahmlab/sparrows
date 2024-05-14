@@ -120,8 +120,8 @@ optimization to select a safe trajectory that is guaranteed to be
 collision-free. We demonstrate that SPARROWS’ novel reachable set is
 significantly less conservative than previous approaches.  We also demonstrate
 that SPARROWS outperforms a variety of state-of-the-art methods in solving
-challenging motion planning tasks in cluttered environments. Code will be
-released upon acceptance of this manuscript.
+challenging motion planning tasks in cluttered environments.
+Code is available on GitHub at [roahmlab/sparrows](https://github.com/roahmlab/sparrows).
 
 </div> <!-- END ABSTRACT -->
 
