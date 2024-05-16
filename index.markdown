@@ -140,11 +140,11 @@ Spheres (SPARROWS). The proposed method combines reachability analysis with
 sphere-based collision primitives and an exact signed distance function to
 enable real-time motion planning that is certifiably-safe, yet less conservative
 than previous methods. This paper’s contributions are three-fold:
-1. A novel reachable set representation composed of over- lapping spheres,
+1. A novel reachable set representation composed of overlapping spheres,
    called the Spherical Forward Occupancy (SFO), that overapproximates the
    robot’s reachable set and is differentiable;
 2. An algorithm that computes the exact signed distance between a point and a
-   three dimensional zonotope;
+   three-dimensional zonotope;
 3. A demonstration that SPARROWS outperforms similar state-of-the-art methods on
    a set of challenging motion planning tasks
 
@@ -155,9 +155,9 @@ than previous methods. This paper’s contributions are three-fold:
 
 # [Simulation Results](#simulation-results)
 ## Random Scenarios
-The following videos demonstrate the performance of SPARROWS to other methods in randomly generated hard schenarios.
-In each of these, SPARROWS is able to acheive the desired goal configuration while the others don't.
-ARMTD does stop in a safe configuration, but it gets stuck and fails make it to the goal.
+The following videos demonstrate the performance of SPARROWS to other methods in randomly generated hard scenarios.
+In each of these, SPARROWS is able to achieve the desired goal configuration, while the others aren't.
+ARMTD does stop in a safe configuration, but it gets stuck and fails to make it to the goal.
 On the other hand, MPOT and TRAJOPT both stop due to colliding with the environment.
 
 <!-- START RANDOM VIDEOS -->
@@ -308,7 +308,7 @@ SPARROWS' performance on a handful of these scenarios is demonstrated below.
   
 # [Citation](#citation)
 
-This project was developed in [Robotics and Optimization for Analysis of Human Motion (ROAHM) Lab](http://www.roahmlab.com/) at University of Michigan - Ann Arbor.
+This project was developed in [Robotics and Optimization for Analysis of Human Motion (ROAHM) Lab](http://www.roahmlab.com/) at the University of Michigan - Ann Arbor.
 
 ```bibtex
 @article{michaux2024sparrows,
