@@ -303,6 +303,7 @@ SPARROWS' performance on a handful of these scenarios is demonstrated below.
   
 * [Autonomous Robust Manipulation via Optimization with Uncertainty-aware Reachability](https://roahmlab.github.io/armour/)
 * [Reachability-based Trajectory Design with Neural Implicit Safety Constraints](https://roahmlab.github.io/RDF/)
+* [Reachability-based Trajectory Design via Exact Formulation of Implicit Neural Signed Distance Functions](https://roahmlab.github.io/redefined/)
 
 <div markdown="1" class="content-block grey justify">
   
