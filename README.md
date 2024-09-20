@@ -67,4 +67,16 @@ The Blender file used to generate the kitchen scene along with a handful of othe
 - [`zonopy`](https://github.com/roahmlab/zonopy) referred some part of [CORA](https://tumcps.github.io/CORA/).
 
 ## Citation
-[//]: <>
+```bibtex
+@article{michaux2024sparrows,
+  title={Safe Planning for Articulated Robots Using Reachability-based Obstacle Avoidance With Spheres},
+  author={Jonathan Michaux and Adam Li and Qingyi Chen and Che Chen and Bohao Zhang and Ram Vasudevan},
+  journal={ArXiv},
+  year={2024},
+  volume={abs/2402.08857},
+  url={https://arxiv.org/abs/2402.08857}}
+```
+
+
+
+
