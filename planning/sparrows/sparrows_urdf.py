@@ -163,6 +163,8 @@ class SPARROWS_3D_planner():
         
         # Collision pairs between links and joints
         self._self_collision_link_link = torch.stack(self._self_collision_link_link).tril() # check up to diag
+        self._self_collision_link_link[-1] = False
+        self._self_collision_link_link[-2] = False
         self._self_collision_link_joint = torch.stack(self._self_collision_link_joint) # check full row
         self._self_collision_joint_joint = self_collision_joint_joint.tril() # check up to diag
 
@@ -213,38 +215,56 @@ class SPARROWS_3D_planner():
         # link_spheres_r are (time_idx, sphere_idx)
         self_collision = None
         if self.check_self_collisions:
-            link_link_mask = self._self_collision_link_link.clone()
-            for link_idx, (link_spheres_c, link_spheres_r) in enumerate(zip(points_check, radii_check)):
-                comp_spheres_c = points_check[self._self_collision_link_link[link_idx]] # (n_comp_links, time_idx, sphere_idx, dim)
-                comp_spheres_r = radii_check[self._self_collision_link_link[link_idx]] # (n_comp_links, time_idx, sphere_idx)
-                delta = link_spheres_c[None,...,None,:] - comp_spheres_c[...,None,:,:]
-                dists = torch.linalg.vector_norm(delta, dim=-1)
-                surf_dists = dists - link_spheres_r.unsqueeze(-1) - comp_spheres_r.unsqueeze(-2) # (n_comp_links, time_idx, sphere_idx(self), sphere_idx)
-                link_link_mask[link_idx][self._self_collision_link_link[link_idx]] = torch.sum(surf_dists < 0,dim=(-1,-2,-3),dtype=bool)
+            # link_link_mask = self._self_collision_link_link.clone()
+            # for link_idx, (link_spheres_c, link_spheres_r) in enumerate(zip(points_check, radii_check)):
+            #     comp_spheres_c = points_check[self._self_collision_link_link[link_idx]] # (n_comp_links, time_idx, sphere_idx, dim)
+            #     comp_spheres_r = radii_check[self._self_collision_link_link[link_idx]] # (n_comp_links, time_idx, sphere_idx)
+            #     delta = link_spheres_c[None,...,None,:] - comp_spheres_c[...,None,:,:]
+            #     dists = torch.linalg.vector_norm(delta, dim=-1)
+            #     surf_dists = dists - link_spheres_r.unsqueeze(-1) - comp_spheres_r.unsqueeze(-2) # (n_comp_links, time_idx, sphere_idx(self), sphere_idx)
+            #     link_link_mask[link_idx][self._self_collision_link_link[link_idx]] = torch.sum(surf_dists < 0,dim=(-1,-2,-3),dtype=bool)
             
-            # Then get each link to joint distance
-            link_joint_mask = self._self_collision_link_joint.clone()
-            for link_idx, (link_spheres_c, link_spheres_r) in enumerate(zip(points_check, radii_check)):
-                comp_spheres_c = center_check[self._self_collision_link_joint[link_idx]].unsqueeze(-2) # (n_comp_links, time_idx, 1, dim)
-                comp_spheres_r = rad_check[self._self_collision_link_joint[link_idx]].unsqueeze(-1) # (n_comp_links, time_idx, 1)
-                delta = link_spheres_c.unsqueeze(0) - comp_spheres_c
-                dists = torch.linalg.vector_norm(delta, dim=-1)
-                surf_dists = dists - comp_spheres_r - link_spheres_r # (n_comp_links, time_idx, sphere_idx)
-                link_joint_mask[link_idx][self._self_collision_link_joint[link_idx]] = torch.sum(surf_dists < 0,dim=(-1,-2),dtype=bool)
+            # # Then get each link to joint distance
+            # link_joint_mask = self._self_collision_link_joint.clone()
+            # for link_idx, (link_spheres_c, link_spheres_r) in enumerate(zip(points_check, radii_check)):
+            #     comp_spheres_c = center_check[self._self_collision_link_joint[link_idx]].unsqueeze(-2) # (n_comp_links, time_idx, 1, dim)
+            #     comp_spheres_r = rad_check[self._self_collision_link_joint[link_idx]].unsqueeze(-1) # (n_comp_links, time_idx, 1)
+            #     delta = link_spheres_c.unsqueeze(0) - comp_spheres_c
+            #     dists = torch.linalg.vector_norm(delta, dim=-1)
+            #     surf_dists = dists - comp_spheres_r - link_spheres_r # (n_comp_links, time_idx, sphere_idx)
+            #     link_joint_mask[link_idx][self._self_collision_link_joint[link_idx]] = torch.sum(surf_dists < 0,dim=(-1,-2),dtype=bool)
 
-            # Then get each joint to joint distance
-            # joint_centers_all are (joint_idx, time_idx, dim)
-            # joint_radii_all are (joint_idx, time_idx)
-            joint_joint_mask = self._self_collision_joint_joint.clone()
-            for joint_idx, (joint_spheres_c, joint_spheres_r) in enumerate(zip(center_check, rad_check)):
-                comp_spheres_c = center_check[self._self_collision_joint_joint[joint_idx]] # (n_comp_joints, time_idx, dim)
-                comp_spheres_r = rad_check[self._self_collision_joint_joint[joint_idx]] # (n_comp_joints, time_idx)
-                delta = joint_spheres_c.unsqueeze(0) - comp_spheres_c
-                dists = torch.linalg.vector_norm(delta, dim=-1)
-                surf_dists = dists - comp_spheres_r - joint_spheres_r # (n_comp_joints, time_idx)
-                joint_joint_mask[joint_idx][self._self_collision_joint_joint[joint_idx]] = torch.sum(surf_dists < 0,dim=(-1),dtype=bool)
+            # # Then get each joint to joint distance
+            # # joint_centers_all are (joint_idx, time_idx, dim)
+            # # joint_radii_all are (joint_idx, time_idx)
+            # joint_joint_mask = self._self_collision_joint_joint.clone()
+            # for joint_idx, (joint_spheres_c, joint_spheres_r) in enumerate(zip(center_check, rad_check)):
+            #     comp_spheres_c = center_check[self._self_collision_joint_joint[joint_idx]] # (n_comp_joints, time_idx, dim)
+            #     comp_spheres_r = rad_check[self._self_collision_joint_joint[joint_idx]] # (n_comp_joints, time_idx)
+            #     delta = joint_spheres_c.unsqueeze(0) - comp_spheres_c
+            #     dists = torch.linalg.vector_norm(delta, dim=-1)
+            #     surf_dists = dists - comp_spheres_r - joint_spheres_r # (n_comp_joints, time_idx)
+            #     joint_joint_mask[joint_idx][self._self_collision_joint_joint[joint_idx]] = torch.sum(surf_dists < 0,dim=(-1),dtype=bool)
             
-            self_collision = (link_link_mask, link_joint_mask, joint_joint_mask)
+            # self_collision = (link_link_mask, link_joint_mask, joint_joint_mask)
+            # link_link_mask = self._self_collision_link_link.clone()
+            tc1_mask = []
+            tc2_mask = []
+            for link_idx in range(len(self._self_collision_link_link)):
+                tc2_idx = self.p_idx.T[self._self_collision_link_link[link_idx]]
+                if len(tc2_idx) == 0:
+                    continue
+                tc1_idx = self.p_idx.T[link_idx].unsqueeze(0).expand_as(tc2_idx)
+                tc1_mask.append(tc1_idx)
+                tc2_mask.append(tc2_idx)
+            tc1_mask = torch.cat(tc1_mask, dim=0).T
+            tc2_mask = torch.cat(tc2_mask, dim=0).T
+            from planning.sparrows.self_collision import self_collision as self_collision_fn
+            tc1 = (center_check[tc1_mask[0]], center_check[tc1_mask[1]], rad_check[tc1_mask[0]], rad_check[tc1_mask[1]])
+            tc2 = (center_check[tc2_mask[0]], center_check[tc2_mask[1]], rad_check[tc2_mask[0]], rad_check[tc2_mask[1]])
+            d = self_collision_fn(tc1, tc2, return_grad=False)
+            mask = torch.sum(d < 0,dim=(-1),dtype=bool)
+            self_collision = (tc1_mask.T[mask], tc2_mask.T[mask])
 
         # output range
         out_g_ka = self.g_ka
@@ -395,22 +415,34 @@ if __name__ == '__main__':
         obs_size_max = [0.2,0.2,0.2],
         obs_gen_buffer = 0.01,
         info_nearest_obstacle_dist = True,
-        renderer = 'pyrender-offscreen',
-        n_obs=5,
+        renderer = 'pyrender',
+        n_obs=1,
+        seed=80,
+        render_fps=10,
+        render_frames=5,
+        viz_goal=True
         )
     # obs = env.reset()
     obs = env.reset(
-        # qpos=np.array([-1.3030, -1.9067,  2.0375, -1.5399, -1.4449,  1.5094,  1.9071]),
-        qpos=np.array([0.7234,  1.6843,  2.5300, -1.0317, -3.1223,  1.2235,  1.3428])-0.2,
+        qpos=np.array([-1.3030, -1.9067,  2.0375, -1.5399, -1.4449,  1.5094,  1.9071]),
+        # qpos=np.array([0.7234,  1.6843,  2.5300, -1.0317, -3.1223,  1.2235,  1.3428])-0.2,
         qvel=np.array([0,0,0,0,0,0,0.]),
         qgoal = np.array([ 0.7234,  1.6843,  2.5300, -1.0317, -3.1223,  1.2235,  1.3428]),
         obs_pos=[
-            np.array([0.65,-0.46,0.33]),
-            np.array([0.5,-0.43,0.3]),
-            np.array([0.47,-0.45,0.15]),
-            np.array([-0.3,0.2,0.23]),
-            np.array([0.3,0.2,0.31])
+            np.array([10.,10,10]),
             ])
+    # obs = env.reset(
+    #     # qpos=np.array([-1.3030, -1.9067,  2.0375, -1.5399, -1.4449,  1.5094,  1.9071]),
+    #     qpos=np.array([0.7234,  1.6843,  2.5300, -1.0317, -3.1223,  1.2235,  1.3428])-0.2,
+    #     qvel=np.array([0,0,0,0,0,0,0.]),
+    #     qgoal = np.array([ 0.7234,  1.6843,  2.5300, -1.0317, -3.1223,  1.2235,  1.3428]),
+    #     obs_pos=[
+    #         np.array([0.65,-0.46,0.33]),
+    #         np.array([0.5,-0.43,0.3]),
+    #         np.array([0.47,-0.45,0.15]),
+    #         np.array([-0.3,0.2,0.23]),
+    #         np.array([0.3,0.2,0.31])
+    #         ])
     # obs = env.reset(
     #     qpos=np.array([ 3.1098, -0.9964, -0.2729, -2.3615,  0.2724, -1.6465, -0.5739]),
     #     qvel=np.array([0,0,0,0,0,0,0.]),
@@ -427,8 +459,8 @@ if __name__ == '__main__':
     #         np.array([ 0.4139, -0.1155,  0.7733]),
     #         np.array([ 0.5243, -0.7838,  0.4781])
     #         ])
-    from environments.fullstep_recorder import FullStepRecorder
-    recorder = FullStepRecorder(env, path=os.path.join(os.getcwd(),'spheres.mp4'))
+    from environments.fullstep_recorder import FullStepFrameRecorder
+    recorder = FullStepFrameRecorder(env, path=os.path.join(os.getcwd(),'spheres'), save_depth=True)
 
     ##### 2. RUN ARMTD #####
     joint_radius_override = {
@@ -460,12 +492,12 @@ if __name__ == '__main__':
     #     'end_effector_rob2': torch.tensor(0.0394685, dtype=dtype, device=device),
     # }
     planner = SPARROWS_3D_planner(rob, device=device, sphere_device=device, dtype=dtype, use_weighted_cost=False, 
-        joint_radius_override=joint_radius_override, spheres_per_link=5, filter_links=True, check_self_collisions=False)
+        joint_radius_override=joint_radius_override, spheres_per_link=5, filter_links=True, check_self_collisions=True)
 
     from visualizations.sphere_viz import SpherePlannerViz
     plot_full_set = True
     sphereviz = SpherePlannerViz(planner, plot_full_set=plot_full_set, t_full=T_FULL)
-    env.add_render_callback('spheres', sphereviz.render_callback, needs_time=not plot_full_set)
+    # env.add_render_callback('spheres', sphereviz.render_callback, needs_time=not plot_full_set)
 
     use_last_k = False
     t_armtd = []
@@ -511,11 +543,39 @@ if __name__ == '__main__':
     # Goal doesn't change so just set it here
     from planning.common.waypoints import GoalWaypointGenerator
     waypoint_generator = GoalWaypointGenerator(obs['qgoal'], planner.osc_rad*3)
+    # from splanning_rrt_waypoint import SplatArmtdWaypointGenerator
+    # waypoint_generator = SplatArmtdWaypointGenerator(
+    #     obs['qpos'],
+    #     obs['qgoal'],
+    #     planner.SFO_constraint,
+    #     (np.asarray(obs['obstacle_pos']), np.asarray(obs['obstacle_size'])),
+    #     planner.combs,
+    #     rob,
+    #     joint_radius_override=joint_radius_override,
+    #     n_spheres_per_link=planner.spheres_per_link,
+    #     n_t = 50,
+    #     k_range = np.pi/3,
+    #     refinement_k_range = np.pi,
+    #     bidirectional=True,
+    #     samples_per_node=10,
+    #     max_batch_compares=1000,
+    #     random_bias=1.2,
+    #     closeness_cull=0.7,
+    #     max_nodes_iter=100,
+    #     graph_max_iter=30,
+    #     waypoint_step_dist=0.5,
+    #     waypoint_norm_ord=torch.inf,
+    #     enforce_vel_radius=planner.osc_rad*3,
+    #     device=device,
+    #     dtype=dtype,
+    #     verbose_level='info'
+    # )
 
     total_stats = {}
     n_steps = 100
     ka = np.zeros(rob.dof)
-    for _ in range(n_steps):
+    from tqdm import tqdm
+    for _ in tqdm(range(n_steps)):
         ts = time.time()
         qpos, qvel = obs['qpos'], obs['qvel']
         obstacles = (np.asarray(obs['obstacle_pos']), np.asarray(obs['obstacle_size']))
@@ -546,8 +606,10 @@ if __name__ == '__main__':
         obs, rew, done, info = env.step(ka)
         # env.step(ka,flag)
         assert(not info['collision_info']['in_collision'])
-        # env.render()
-        recorder.capture_frame()
+        env.render()
+        # recorder.capture_frame()
+        if done:
+            break
     from scipy import stats
     print(f'Total time elasped for ARMTD-3D with {n_steps} steps: {stats.describe(t_armtd)}')
     print("Per step")

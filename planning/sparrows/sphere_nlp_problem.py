@@ -37,22 +37,25 @@ class OfflineSparrowsConstraints:
 
         ### Self collision checks
         if self_collision is not None:
-            self.self_collision_link_link = self_collision[0]
-            self.self_collision_link_joint = self_collision[1]
-            self.self_collision_joint_joint = self_collision[2]
-            self.n_link_link = self.self_collision_link_link.count_nonzero(dim=1).cpu()
-            self.n_link_joint = self.self_collision_link_joint.count_nonzero(dim=1).cpu()
-            self.n_joint_joint = self.self_collision_joint_joint.count_nonzero(dim=1).cpu()
-            num_link_link = self.n_link_link.sum()
-            num_link_joint = self.n_link_joint.sum()
-            num_joint_joint = self.n_joint_joint.sum()
-            # self.n_self_collision = num_link_link*n_time*n_spheres_per_link*n_spheres_per_link \
-            #                         + num_link_joint*n_time*n_spheres_per_link \
-            #                         + num_joint_joint*n_time
-            self.n_self_collision_full = num_link_link*n_spheres_per_link*n_spheres_per_link \
-                                    + num_link_joint*n_spheres_per_link \
-                                    + num_joint_joint
-            self.n_self_collision = self.top_k*n_time
+            # self.self_collision_link_link = self_collision[0]
+            # self.self_collision_link_joint = self_collision[1]
+            # self.self_collision_joint_joint = self_collision[2]
+            # self.n_link_link = self.self_collision_link_link.count_nonzero(dim=1).cpu()
+            # self.n_link_joint = self.self_collision_link_joint.count_nonzero(dim=1).cpu()
+            # self.n_joint_joint = self.self_collision_joint_joint.count_nonzero(dim=1).cpu()
+            # num_link_link = self.n_link_link.sum()
+            # num_link_joint = self.n_link_joint.sum()
+            # num_joint_joint = self.n_joint_joint.sum()
+            # # self.n_self_collision = num_link_link*n_time*n_spheres_per_link*n_spheres_per_link \
+            # #                         + num_link_joint*n_time*n_spheres_per_link \
+            # #                         + num_joint_joint*n_time
+            # self.n_self_collision_full = num_link_link*n_spheres_per_link*n_spheres_per_link \
+            #                         + num_link_joint*n_spheres_per_link \
+            #                         + num_joint_joint
+            # self.n_self_collision = self.top_k*n_time
+            self.self_collision_tc1 = self_collision[0]
+            self.self_collision_tc2 = self_collision[1]
+            self.n_self_collision = len(self.self_collision_tc1) * n_time
         else:
             self.n_self_collision = 0
         ###
@@ -115,6 +118,27 @@ class OfflineSparrowsConstraints:
             Cons_out: An output tensor of shape (n_self_collision) representing the constraint values. This is modified in place.
             Jac_out: An output tensor of shape (n_self_collision, n_params) representing the jacobian of the constraint values. This is modified in place.
         '''
+        # Cons_out_ = torch.empty((self.n_time, self.n_self_collision), dtype=self.dtype, device=self.device)
+        # Jac_out_ = torch.empty((self.n_time, self.n_self_collision, self.n_params), dtype=self.dtype, device=self.device)
+
+        from planning.sparrows.self_collision import self_collision as self_collision_fn
+        tc1_mask = self.self_collision_tc1.T
+        tc2_mask = self.self_collision_tc2.T
+        tc1 = (joint_centers[tc1_mask[0]], joint_centers[tc1_mask[1]], joint_radii[tc1_mask[0]], joint_radii[tc1_mask[1]])
+        tc2 = (joint_centers[tc2_mask[0]], joint_centers[tc2_mask[1]], joint_radii[tc2_mask[0]], joint_radii[tc2_mask[1]])
+        d, grad_tc1, grad_tc2 = self_collision_fn(tc1, tc2, return_grad=True)
+
+        jac_tc1 = (joint_jacs[tc1_mask[0]], joint_jacs[tc1_mask[1]])
+        jac_tc2 = (joint_jacs[tc2_mask[0]], joint_jacs[tc2_mask[1]])
+
+        def compute_jac(sgrad, kgrad):
+            return (sgrad[0].unsqueeze(-1) * kgrad[0] + sgrad[1].unsqueeze(-1) * kgrad[1]).sum(-2)
+        c_jac = compute_jac(grad_tc1, jac_tc1) + compute_jac(grad_tc2, jac_tc2) + grad_tc1[2].unsqueeze(-1) + grad_tc2[2].unsqueeze(-1) + grad_tc1[3].unsqueeze(-1) + grad_tc2[3].unsqueeze(-1)
+        Cons_out.copy_(-d.reshape(-1))
+        Jac_out.copy_(-c_jac.reshape(-1,self.n_params))
+        return
+
+        
         # First get each link to link distance
         # spheres[0] are (link_idx, time_idx, sphere_idx, dim)
         # spheres[1] are (link_idx, time_idx, sphere_idx)
