@@ -15,6 +15,7 @@ dependencies:
   - pyyaml
   - main::pip
   - pip:
+    - trimesh==4.1.0
     - matplotlib
     - scipy>=1.8.0
     - urchin
