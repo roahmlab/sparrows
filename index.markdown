@@ -41,6 +41,10 @@ author-footnotes:
   All authors affiliated with the department of Mechanical Engineering and Department of Robotics of the University of Michigan, Ann Arbor.
 
 links:
+  - icon: bi-file-earmark-text
+    icon-library: bootstrap-icons
+    text: Paper
+    url: https://www.roboticsproceedings.org/rss20/p035.html
   - icon: arxiv
     icon-library: simpleicons
     text: ArXiv
@@ -311,15 +315,20 @@ SPARROWS' performance on a handful of these scenarios is demonstrated below.
 
 This project was developed in [Robotics and Optimization for Analysis of Human Motion (ROAHM) Lab](http://www.roahmlab.com/) at the University of Michigan - Ann Arbor.
 
+[//]: <> (Raw added so title doesn't get processed as a liquid variable)
+{% raw %}
 ```bibtex
-@article{michaux2024sparrows,
-  title={Safe Planning for Articulated Robots Using Reachability-based Obstacle Avoidance With Spheres},
-  author={Jonathan Michaux and Adam Li and Qingyi Chen and Che Chen and Bohao Zhang and Ram Vasudevan},
-  journal={ArXiv},
-  year={2024},
-  volume={abs/2402.08857},
-  url={https://arxiv.org/abs/2402.08857}}
+@INPROCEEDINGS{Michaux-SPARROWS-RSS-24, 
+  AUTHOR    = {Jonathan Michaux AND Adam Li AND Qingyi Chen AND Che Chen AND Ram Vasudevan},
+  TITLE     = {{Safe Planning for Articulated Robots Using Reachability-based Obstacle Avoidance With Spheres}},
+  BOOKTITLE = {Proceedings of Robotics: Science and Systems},
+  YEAR      = {2024},
+  ADDRESS   = {Delft, Netherlands},
+  MONTH     = {July},
+  DOI       = {10.15607/RSS.2024.XX.035}
+}
 ```
+{% endraw %}
 </div>
 
 
