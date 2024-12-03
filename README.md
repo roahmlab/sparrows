@@ -68,13 +68,15 @@ The Blender file used to generate the kitchen scene along with a handful of othe
 
 ## Citation
 ```bibtex
-@article{michaux2024sparrows,
-  title={Safe Planning for Articulated Robots Using Reachability-based Obstacle Avoidance With Spheres},
-  author={Jonathan Michaux and Adam Li and Qingyi Chen and Che Chen and Bohao Zhang and Ram Vasudevan},
-  journal={ArXiv},
-  year={2024},
-  volume={abs/2402.08857},
-  url={https://arxiv.org/abs/2402.08857}}
+@INPROCEEDINGS{Michaux-SPARROWS-RSS-24, 
+  AUTHOR    = {Jonathan Michaux AND Adam Li AND Qingyi Chen AND Che Chen AND Ram Vasudevan},
+  TITLE     = {{Safe Planning for Articulated Robots Using Reachability-based Obstacle Avoidance With Spheres}},
+  BOOKTITLE = {Proceedings of Robotics: Science and Systems},
+  YEAR      = {2024},
+  ADDRESS   = {Delft, Netherlands},
+  MONTH     = {July},
+  DOI       = {10.15607/RSS.2024.XX.035}
+}
 ```
 
 
